@@ -36,7 +36,7 @@ You can create that tool by running the following command and pasting in the val
 
 This will create a file called `auth.json` in your current directory containing the required values. To save the file at a different path or filename, use the `--auth=myauth.json` option.
  
-## Retrieving your Twitter followers
+## Retrieving Twitter followers
 
 The `twitter-to-sqlite followers` command retrieves details of every follower of the specified account. You can use it to retrieve your own followers, or you can pass a screen_name to pull the followers for another account.
 
