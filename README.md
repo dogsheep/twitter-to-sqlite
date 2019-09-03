@@ -46,6 +46,8 @@ The following command pulls your followers and saves them in a SQLite database f
 
 The `auth.json` path argument is optional - if you omit it the script will look for `auth.json` in your current directory.
 
+This command is **extremely slow**, because Twitter impose a rate limit of no more than one request per minute to this endpoint! If you are running it against an account with thousands of followers you should expect this to take several hours.
+
 To retrieve followers for another account, use:
 
     $ twitter-to-sqlite followers twitter.db --screen_name=cleopaws
