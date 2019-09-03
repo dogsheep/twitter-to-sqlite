@@ -42,9 +42,11 @@ The `twitter-to-sqlite followers` command retrieves details of every follower of
 
 The following command pulls your followers and saves them in a SQLite database file called `twitter.db`:
 
-    $ twitter-to-sqlite followers twitter.db auth.json
+    $ twitter-to-sqlite followers twitter.db
 
-The `auth.json` path argument is optional - if you omit it the script will look for `auth.json` in your current directory.
+It assumes there is an `auth.json` file in the current director. You can provide the path to your `auth.json` file using `-a`:
+
+    $ twitter-to-sqlite followers twitter.db -a /path/to/auth.json
 
 This command is **extremely slow**, because Twitter impose a rate limit of no more than one request per minute to this endpoint! If you are running it against an account with thousands of followers you should expect this to take several hours.
 

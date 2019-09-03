@@ -48,17 +48,18 @@ def auth(auth):
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
     required=True,
 )
-@click.argument(
-    "auth_path",
+@click.option(
+    "-a",
+    "--auth",
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
     default="auth.json",
 )
 @click.option("--user_id", help="Numeric user ID")
 @click.option("--screen_name", help="Screen name")
 @click.option("--silent", is_flag=True, help="Disable progress bar")
-def followers(db_path, auth_path, user_id, screen_name, silent):
+def followers(db_path, auth, user_id, screen_name, silent):
     "Save followers for specified user (defaults to authenticated user)"
-    auth = json.load(open(auth_path))
+    auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     db = sqlite_utils.Database(db_path)
     fetched = []
