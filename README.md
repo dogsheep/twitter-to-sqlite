@@ -34,7 +34,7 @@ You can create that tool by running the following command and pasting in the val
     Access token: xxx
     Access token secret: xxx
 
-This will create a file called `auth.json` in your current directory containing the required values.
+This will create a file called `auth.json` in your current directory containing the required values. To save the file at a different path or filename, use the `--auth=myauth.json` option.
  
 ## Retrieving your Twitter followers
 

@@ -12,12 +12,14 @@ def cli():
 
 
 @cli.command()
-@click.argument(
-    "auth_path",
+@click.option(
+    "-a",
+    "--auth",
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
     default="auth.json",
+    help="Path to save tokens to, defaults to auth.json",
 )
-def auth(auth_path):
+def auth(auth):
     "Save authentication credentials to a JSON file"
     click.echo("Create an app here: https://developer.twitter.com/en/apps")
     click.echo("Then navigate to 'Keys and tokens' and paste in the following:")
@@ -26,7 +28,7 @@ def auth(auth_path):
     api_secret_key = click.prompt("API secret key")
     access_token = click.prompt("Access token")
     access_token_secret = click.prompt("Access token secret")
-    open(auth_path, "w").write(
+    open(auth, "w").write(
         json.dumps(
             {
                 "api_key": api_key,
