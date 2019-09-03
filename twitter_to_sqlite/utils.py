@@ -19,6 +19,8 @@ def fetch_follower_chunks(session, user_id, screen_name):
         headers, body = fetch_followers(session, cursor, user_id, screen_name)
         yield body["users"]
         cursor = body["next_cursor"]
+        if not cursor:
+            break
         time.sleep(61)  # Rate limit = 15 per 15 minutes!
 
 
