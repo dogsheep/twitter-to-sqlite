@@ -53,6 +53,7 @@ def auth(auth):
     "--auth",
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
     default="auth.json",
+    help="Path to auth.json token file",
 )
 @click.option("--user_id", help="Numeric user ID")
 @click.option("--screen_name", help="Screen name")
