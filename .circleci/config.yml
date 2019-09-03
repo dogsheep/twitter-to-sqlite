@@ -46,7 +46,7 @@ jobs:
             . venv/bin/activate
             pip install -e .
             pip install pytest
-            pytest
+            twitter-to-sqlite --help
   test-python-install:
     parameters:
       version:
@@ -74,7 +74,7 @@ jobs:
             . venv/bin/activate
             pip install -e .
             pip install pytest
-            pytest
+            twitter-to-sqlite --help
   deploy:
     docker:
       - image: circleci/python:3.6
