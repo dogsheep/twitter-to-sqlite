@@ -14,14 +14,19 @@ def test_save_tweets(tweets):
     db = sqlite_utils.Database(memory=True)
     utils.save_tweets(db, tweets)
     assert {
-        "users",
-        "users_fts_data",
         "users_fts_idx",
-        "users_fts_docsize",
-        "users_fts_config",
+        "users_fts_data",
+        "tweets_fts",
+        "tweets_fts_idx",
         "tweets",
-        "users_fts",
+        "users",
         "following",
+        "tweets_fts_data",
+        "users_fts_config",
+        "users_fts",
+        "tweets_fts_config",
+        "tweets_fts_docsize",
+        "users_fts_docsize",
     } == set(db.table_names())
     tweet_rows = list(db["tweets"].rows)
     user_rows = list(db["users"].rows)

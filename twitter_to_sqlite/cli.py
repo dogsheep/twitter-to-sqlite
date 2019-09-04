@@ -172,4 +172,3 @@ def user_timeline(db_path, auth, user_id, screen_name):
                 chunk = []
         if chunk:
             utils.save_tweets(db, chunk)
-
