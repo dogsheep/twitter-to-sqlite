@@ -103,4 +103,60 @@ def followers(db_path, auth, user_id, screen_name, silent):
             go(bar.update)
     else:
         go(lambda x: None)
-    open("/tmp/all.json", "w").write(json.dumps(fetched, indent=4))
+    #open("/tmp/all.json", "w").write(json.dumps(fetched, indent=4))
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option("--user_id", help="Numeric user ID")
+@click.option("--screen_name", help="Screen name")
+def favorites(db_path, auth, user_id, screen_name):
+    "Save tweets favorited by specified user"
+    auth = json.load(open(auth))
+    session = utils.session_for_auth(auth)
+    db = sqlite_utils.Database(db_path)
+    with click.progressbar(
+        utils.fetch_favorites(session, user_id, screen_name),
+        label="Importing favorites",
+        show_pos=True,
+    ) as bar:
+        utils.save_tweets(db, bar)
+
+
+@cli.command(name="user-timeline")
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option("--user_id", help="Numeric user ID")
+@click.option("--screen_name", help="Screen name")
+def user_timeline(db_path, auth, user_id, screen_name):
+    "Save tweets posted by specified user"
+    auth = json.load(open(auth))
+    session = utils.session_for_auth(auth)
+    db = sqlite_utils.Database(db_path)
+    with click.progressbar(
+        utils.fetch_user_timeline(session, user_id, screen_name),
+        label="Importing tweets",
+        show_pos=True,
+    ) as bar:
+        utils.save_tweets(db, bar)

@@ -1,0 +1,624 @@
+[
+    {
+        "created_at": "Wed Sep 04 13:51:55 +0000 2019",
+        "id": 1169246717864136700,
+        "id_str": "1169246717864136705",
+        "full_text": "RT @drvox: My new post: an explainer on “carbon capture &amp; utilization” (CCU). CO2 captured from waste gases or the ambient air can be used…",
+        "truncated": false,
+        "display_text_range": [
+            0,
+            143
+        ],
+        "entities": {
+            "hashtags": [],
+            "symbols": [],
+            "user_mentions": [
+                {
+                    "screen_name": "drvox",
+                    "name": "David Roberts",
+                    "id": 22737278,
+                    "id_str": "22737278",
+                    "indices": [
+                        3,
+                        9
+                    ]
+                }
+            ],
+            "urls": []
+        },
+        "source": "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>",
+        "in_reply_to_status_id": null,
+        "in_reply_to_status_id_str": null,
+        "in_reply_to_user_id": null,
+        "in_reply_to_user_id_str": null,
+        "in_reply_to_screen_name": null,
+        "user": {
+            "id": 12497,
+            "id_str": "12497",
+            "name": "Simon Willison",
+            "screen_name": "simonw",
+            "location": "San Francisco, CA",
+            "description": "Creator of Datasette, co-creator Django. Fellow at @JSKstanford. Usually hanging out with @natbat and @cleopaws. He/Him",
+            "url": "https://t.co/wyNggeHZ8W",
+            "entities": {
+                "url": {
+                    "urls": [
+                        {
+                            "url": "https://t.co/wyNggeHZ8W",
+                            "expanded_url": "https://simonwillison.net/",
+                            "display_url": "simonwillison.net",
+                            "indices": [
+                                0,
+                                23
+                            ]
+                        }
+                    ]
+                },
+                "description": {
+                    "urls": []
+                }
+            },
+            "protected": false,
+            "followers_count": 17754,
+            "friends_count": 3460,
+            "listed_count": 1230,
+            "created_at": "Wed Nov 15 13:18:50 +0000 2006",
+            "favourites_count": 21506,
+            "utc_offset": null,
+            "time_zone": null,
+            "geo_enabled": true,
+            "verified": true,
+            "statuses_count": 17780,
+            "lang": null,
+            "contributors_enabled": false,
+            "is_translator": false,
+            "is_translation_enabled": false,
+            "profile_background_color": "000000",
+            "profile_background_image_url": "http://abs.twimg.com/images/themes/theme1/bg.png",
+            "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme1/bg.png",
+            "profile_background_tile": false,
+            "profile_image_url": "http://pbs.twimg.com/profile_images/378800000261649705/be9cc55e64014e6d7663c50d7cb9fc75_normal.jpeg",
+            "profile_image_url_https": "https://pbs.twimg.com/profile_images/378800000261649705/be9cc55e64014e6d7663c50d7cb9fc75_normal.jpeg",
+            "profile_banner_url": "https://pbs.twimg.com/profile_banners/12497/1347977147",
+            "profile_link_color": "0000FF",
+            "profile_sidebar_border_color": "FFFFFF",
+            "profile_sidebar_fill_color": "FFFFFF",
+            "profile_text_color": "000000",
+            "profile_use_background_image": true,
+            "has_extended_profile": true,
+            "default_profile": false,
+            "default_profile_image": false,
+            "following": false,
+            "follow_request_sent": false,
+            "notifications": false,
+            "translator_type": "regular"
+        },
+        "geo": null,
+        "coordinates": null,
+        "place": null,
+        "contributors": null,
+        "retweeted_status": {
+            "created_at": "Wed Sep 04 13:33:12 +0000 2019",
+            "id": 1169242008432644000,
+            "id_str": "1169242008432644097",
+            "full_text": "My new post: an explainer on “carbon capture &amp; utilization” (CCU). CO2 captured from waste gases or the ambient air can be used to make valuable products. Could CCU help the carbon capture industry scale up? https://t.co/cVDz7Xxi4E",
+            "truncated": false,
+            "display_text_range": [
+                0,
+                235
+            ],
+            "entities": {
+                "hashtags": [],
+                "symbols": [],
+                "user_mentions": [],
+                "urls": [
+                    {
+                        "url": "https://t.co/cVDz7Xxi4E",
+                        "expanded_url": "https://www.vox.com/energy-and-environment/2019/9/4/20829431/climate-change-carbon-capture-utilization-sequestration-ccu-ccs?utm_campaign=drvox&utm_content=chorus&utm_medium=social&utm_source=twitter",
+                        "display_url": "vox.com/energy-and-env…",
+                        "indices": [
+                            212,
+                            235
+                        ]
+                    }
+                ]
+            },
+            "source": "<a href=\"http://www.voxmedia.com\" rel=\"nofollow\">Vox Media</a>",
+            "in_reply_to_status_id": null,
+            "in_reply_to_status_id_str": null,
+            "in_reply_to_user_id": null,
+            "in_reply_to_user_id_str": null,
+            "in_reply_to_screen_name": null,
+            "user": {
+                "id": 22737278,
+                "id_str": "22737278",
+                "name": "David Roberts",
+                "screen_name": "drvox",
+                "location": "Seattle, WA",
+                "description": "Seattleite transplanted from Tennessee; now blogging for https://t.co/5gESirnht7 about energy politics. Climate hawk, deficit dove. Not a doctor.",
+                "url": "http://t.co/AMWwRyre24",
+                "entities": {
+                    "url": {
+                        "urls": [
+                            {
+                                "url": "http://t.co/AMWwRyre24",
+                                "expanded_url": "http://www.vox.com/authors/david-roberts",
+                                "display_url": "vox.com/authors/david-…",
+                                "indices": [
+                                    0,
+                                    22
+                                ]
+                            }
+                        ]
+                    },
+                    "description": {
+                        "urls": [
+                            {
+                                "url": "https://t.co/5gESirnht7",
+                                "expanded_url": "http://Vox.com",
+                                "display_url": "Vox.com",
+                                "indices": [
+                                    57,
+                                    80
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "protected": false,
+                "followers_count": 132789,
+                "friends_count": 2723,
+                "listed_count": 4644,
+                "created_at": "Wed Mar 04 05:14:12 +0000 2009",
+                "favourites_count": 26,
+                "utc_offset": null,
+                "time_zone": null,
+                "geo_enabled": false,
+                "verified": true,
+                "statuses_count": 13887,
+                "lang": null,
+                "contributors_enabled": false,
+                "is_translator": false,
+                "is_translation_enabled": false,
+                "profile_background_color": "022330",
+                "profile_background_image_url": "http://abs.twimg.com/images/themes/theme15/bg.png",
+                "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme15/bg.png",
+                "profile_background_tile": false,
+                "profile_image_url": "http://pbs.twimg.com/profile_images/551076081051004929/2i4QEfn-_normal.jpeg",
+                "profile_image_url_https": "https://pbs.twimg.com/profile_images/551076081051004929/2i4QEfn-_normal.jpeg",
+                "profile_banner_url": "https://pbs.twimg.com/profile_banners/22737278/1433745271",
+                "profile_link_color": "0084B4",
+                "profile_sidebar_border_color": "A8C7F7",
+                "profile_sidebar_fill_color": "C0DFEC",
+                "profile_text_color": "333333",
+                "profile_use_background_image": true,
+                "has_extended_profile": false,
+                "default_profile": false,
+                "default_profile_image": false,
+                "following": true,
+                "follow_request_sent": false,
+                "notifications": false,
+                "translator_type": "none"
+            },
+            "geo": null,
+            "coordinates": null,
+            "place": null,
+            "contributors": null,
+            "is_quote_status": false,
+            "retweet_count": 42,
+            "favorite_count": 86,
+            "favorited": true,
+            "retweeted": true,
+            "possibly_sensitive": false,
+            "lang": "en"
+        },
+        "is_quote_status": false,
+        "retweet_count": 42,
+        "favorite_count": 0,
+        "favorited": true,
+        "retweeted": true,
+        "lang": "en"
+    },
+    {
+        "created_at": "Wed Sep 04 10:32:10 +0000 2019",
+        "id": 1169196446043664400,
+        "id_str": "1169196446043664385",
+        "full_text": "@scientiffic @Wikipedia @unsplash @cagarrity The @inaturalist API is amazingly powerful and fun with no auth and no rate limit. We used it to build https://t.co/q17EOpkGc3 - see also @Natbat's great tutorial on using it with @observablehq https://t.co/WbYktnYxBc",
+        "truncated": false,
+        "display_text_range": [
+            45,
+            262
+        ],
+        "entities": {
+            "hashtags": [],
+            "symbols": [],
+            "user_mentions": [
+                {
+                    "screen_name": "scientiffic",
+                    "name": "Tiffany Tseng 🍡",
+                    "id": 82016165,
+                    "id_str": "82016165",
+                    "indices": [
+                        0,
+                        12
+                    ]
+                },
+                {
+                    "screen_name": "Wikipedia",
+                    "name": "Wikipedia",
+                    "id": 86390214,
+                    "id_str": "86390214",
+                    "indices": [
+                        13,
+                        23
+                    ]
+                },
+                {
+                    "screen_name": "unsplash",
+                    "name": "Unsplash",
+                    "id": 1520228526,
+                    "id_str": "1520228526",
+                    "indices": [
+                        24,
+                        33
+                    ]
+                },
+                {
+                    "screen_name": "cagarrity",
+                    "name": "Chris Garrity",
+                    "id": 92321453,
+                    "id_str": "92321453",
+                    "indices": [
+                        34,
+                        44
+                    ]
+                },
+                {
+                    "screen_name": "inaturalist",
+                    "name": "iNaturalist",
+                    "id": 14239043,
+                    "id_str": "14239043",
+                    "indices": [
+                        49,
+                        61
+                    ]
+                },
+                {
+                    "screen_name": "Natbat",
+                    "name": "Natbat",
+                    "id": 12161,
+                    "id_str": "12161",
+                    "indices": [
+                        183,
+                        190
+                    ]
+                },
+                {
+                    "screen_name": "observablehq",
+                    "name": "Observable",
+                    "id": 905255756789825500,
+                    "id_str": "905255756789825536",
+                    "indices": [
+                        225,
+                        238
+                    ]
+                }
+            ],
+            "urls": [
+                {
+                    "url": "https://t.co/q17EOpkGc3",
+                    "expanded_url": "http://www.owlsnearme.com",
+                    "display_url": "owlsnearme.com",
+                    "indices": [
+                        148,
+                        171
+                    ]
+                },
+                {
+                    "url": "https://t.co/WbYktnYxBc",
+                    "expanded_url": "https://24ways.org/2018/observable-notebooks-and-inaturalist/",
+                    "display_url": "24ways.org/2018/observabl…",
+                    "indices": [
+                        239,
+                        262
+                    ]
+                }
+            ]
+        },
+        "source": "<a href=\"http://twitter.com/download/iphone\" rel=\"nofollow\">Twitter for iPhone</a>",
+        "in_reply_to_status_id": 1169079390577320000,
+        "in_reply_to_status_id_str": "1169079390577319937",
+        "in_reply_to_user_id": 82016165,
+        "in_reply_to_user_id_str": "82016165",
+        "in_reply_to_screen_name": "scientiffic",
+        "user": {
+            "id": 12497,
+            "id_str": "12497",
+            "name": "Simon Willison",
+            "screen_name": "simonw",
+            "location": "San Francisco, CA",
+            "description": "Creator of Datasette, co-creator Django. Fellow at @JSKstanford. Usually hanging out with @natbat and @cleopaws. He/Him",
+            "url": "https://t.co/wyNggeHZ8W",
+            "entities": {
+                "url": {
+                    "urls": [
+                        {
+                            "url": "https://t.co/wyNggeHZ8W",
+                            "expanded_url": "https://simonwillison.net/",
+                            "display_url": "simonwillison.net",
+                            "indices": [
+                                0,
+                                23
+                            ]
+                        }
+                    ]
+                },
+                "description": {
+                    "urls": []
+                }
+            },
+            "protected": false,
+            "followers_count": 17754,
+            "friends_count": 3460,
+            "listed_count": 1230,
+            "created_at": "Wed Nov 15 13:18:50 +0000 2006",
+            "favourites_count": 21506,
+            "utc_offset": null,
+            "time_zone": null,
+            "geo_enabled": true,
+            "verified": true,
+            "statuses_count": 17780,
+            "lang": null,
+            "contributors_enabled": false,
+            "is_translator": false,
+            "is_translation_enabled": false,
+            "profile_background_color": "000000",
+            "profile_background_image_url": "http://abs.twimg.com/images/themes/theme1/bg.png",
+            "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme1/bg.png",
+            "profile_background_tile": false,
+            "profile_image_url": "http://pbs.twimg.com/profile_images/378800000261649705/be9cc55e64014e6d7663c50d7cb9fc75_normal.jpeg",
+            "profile_image_url_https": "https://pbs.twimg.com/profile_images/378800000261649705/be9cc55e64014e6d7663c50d7cb9fc75_normal.jpeg",
+            "profile_banner_url": "https://pbs.twimg.com/profile_banners/12497/1347977147",
+            "profile_link_color": "0000FF",
+            "profile_sidebar_border_color": "FFFFFF",
+            "profile_sidebar_fill_color": "FFFFFF",
+            "profile_text_color": "000000",
+            "profile_use_background_image": true,
+            "has_extended_profile": true,
+            "default_profile": false,
+            "default_profile_image": false,
+            "following": false,
+            "follow_request_sent": false,
+            "notifications": false,
+            "translator_type": "regular"
+        },
+        "geo": null,
+        "coordinates": null,
+        "place": null,
+        "contributors": null,
+        "is_quote_status": false,
+        "retweet_count": 0,
+        "favorite_count": 2,
+        "favorited": false,
+        "retweeted": false,
+        "possibly_sensitive": false,
+        "lang": "en"
+    },
+    {
+        "created_at": "Mon Sep 02 14:19:58 +0000 2019",
+        "id": 1168529001599533000,
+        "id_str": "1168529001599533057",
+        "full_text": "Finally got around to running this script. It is BRILLIANT - it produces a concatenated .wav file of the audio from every live photo you've ever taken.\n\nNeeds quite a lot of disk space to run - the /tmp/picblast folder can take multiple GB https://t.co/AJNTJbhF0g",
+        "truncated": false,
+        "display_text_range": [
+            0,
+            239
+        ],
+        "entities": {
+            "hashtags": [],
+            "symbols": [],
+            "user_mentions": [],
+            "urls": [
+                {
+                    "url": "https://t.co/AJNTJbhF0g",
+                    "expanded_url": "https://twitter.com/bwhitman/status/861696799362478085",
+                    "display_url": "twitter.com/bwhitman/statu…",
+                    "indices": [
+                        240,
+                        263
+                    ]
+                }
+            ]
+        },
+        "source": "<a href=\"https://mobile.twitter.com\" rel=\"nofollow\">Twitter Web App</a>",
+        "in_reply_to_status_id": null,
+        "in_reply_to_status_id_str": null,
+        "in_reply_to_user_id": null,
+        "in_reply_to_user_id_str": null,
+        "in_reply_to_screen_name": null,
+        "user": {
+            "id": 12497,
+            "id_str": "12497",
+            "name": "Simon Willison",
+            "screen_name": "simonw",
+            "location": "San Francisco, CA",
+            "description": "Creator of Datasette, co-creator Django. Fellow at @JSKstanford. Usually hanging out with @natbat and @cleopaws. He/Him",
+            "url": "https://t.co/wyNggeHZ8W",
+            "entities": {
+                "url": {
+                    "urls": [
+                        {
+                            "url": "https://t.co/wyNggeHZ8W",
+                            "expanded_url": "https://simonwillison.net/",
+                            "display_url": "simonwillison.net",
+                            "indices": [
+                                0,
+                                23
+                            ]
+                        }
+                    ]
+                },
+                "description": {
+                    "urls": []
+                }
+            },
+            "protected": false,
+            "followers_count": 17754,
+            "friends_count": 3460,
+            "listed_count": 1230,
+            "created_at": "Wed Nov 15 13:18:50 +0000 2006",
+            "favourites_count": 21506,
+            "utc_offset": null,
+            "time_zone": null,
+            "geo_enabled": true,
+            "verified": true,
+            "statuses_count": 17780,
+            "lang": null,
+            "contributors_enabled": false,
+            "is_translator": false,
+            "is_translation_enabled": false,
+            "profile_background_color": "000000",
+            "profile_background_image_url": "http://abs.twimg.com/images/themes/theme1/bg.png",
+            "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme1/bg.png",
+            "profile_background_tile": false,
+            "profile_image_url": "http://pbs.twimg.com/profile_images/378800000261649705/be9cc55e64014e6d7663c50d7cb9fc75_normal.jpeg",
+            "profile_image_url_https": "https://pbs.twimg.com/profile_images/378800000261649705/be9cc55e64014e6d7663c50d7cb9fc75_normal.jpeg",
+            "profile_banner_url": "https://pbs.twimg.com/profile_banners/12497/1347977147",
+            "profile_link_color": "0000FF",
+            "profile_sidebar_border_color": "FFFFFF",
+            "profile_sidebar_fill_color": "FFFFFF",
+            "profile_text_color": "000000",
+            "profile_use_background_image": true,
+            "has_extended_profile": true,
+            "default_profile": false,
+            "default_profile_image": false,
+            "following": false,
+            "follow_request_sent": false,
+            "notifications": false,
+            "translator_type": "regular"
+        },
+        "geo": null,
+        "coordinates": null,
+        "place": null,
+        "contributors": null,
+        "is_quote_status": true,
+        "quoted_status_id": 861696799362478100,
+        "quoted_status_id_str": "861696799362478085",
+        "quoted_status_permalink": {
+            "url": "https://t.co/AJNTJbhF0g",
+            "expanded": "https://twitter.com/bwhitman/status/861696799362478085",
+            "display": "twitter.com/bwhitman/statu…"
+        },
+        "quoted_status": {
+            "created_at": "Mon May 08 21:38:21 +0000 2017",
+            "id": 861696799362478100,
+            "id_str": "861696799362478085",
+            "full_text": "If you use Photos (mac) &amp; Live Photos, run this command to generate a lovely sound collage of where you’ve been https://t.co/cEbhE4P3ZM",
+            "truncated": false,
+            "display_text_range": [
+                0,
+                139
+            ],
+            "entities": {
+                "hashtags": [],
+                "symbols": [],
+                "user_mentions": [],
+                "urls": [
+                    {
+                        "url": "https://t.co/cEbhE4P3ZM",
+                        "expanded_url": "https://gist.github.com/bwhitman/5be2f905556a25145dbac74fe4080739",
+                        "display_url": "gist.github.com/bwhitman/5be2f…",
+                        "indices": [
+                            116,
+                            139
+                        ]
+                    }
+                ]
+            },
+            "source": "<a href=\"http://itunes.apple.com/us/app/twitter/id409789998?mt=12\" rel=\"nofollow\">Twitter for Mac</a>",
+            "in_reply_to_status_id": null,
+            "in_reply_to_status_id_str": null,
+            "in_reply_to_user_id": null,
+            "in_reply_to_user_id_str": null,
+            "in_reply_to_screen_name": null,
+            "user": {
+                "id": 14148390,
+                "id_str": "14148390",
+                "name": "Brian Whitman",
+                "screen_name": "bwhitman",
+                "location": "Fort Greene NYC",
+                "description": "finding the good @ourcanopy with the best people. was CTO/cofounder of Echo Nest, then research @ Spotify. always music",
+                "url": "https://t.co/S9eq2BkZsn",
+                "entities": {
+                    "url": {
+                        "urls": [
+                            {
+                                "url": "https://t.co/S9eq2BkZsn",
+                                "expanded_url": "https://notes.variogr.am/about/",
+                                "display_url": "notes.variogr.am/about/",
+                                "indices": [
+                                    0,
+                                    23
+                                ]
+                            }
+                        ]
+                    },
+                    "description": {
+                        "urls": []
+                    }
+                },
+                "protected": false,
+                "followers_count": 4300,
+                "friends_count": 639,
+                "listed_count": 235,
+                "created_at": "Fri Mar 14 18:19:20 +0000 2008",
+                "favourites_count": 8966,
+                "utc_offset": null,
+                "time_zone": null,
+                "geo_enabled": true,
+                "verified": false,
+                "statuses_count": 2192,
+                "lang": null,
+                "contributors_enabled": false,
+                "is_translator": false,
+                "is_translation_enabled": false,
+                "profile_background_color": "FFFFFF",
+                "profile_background_image_url": "http://abs.twimg.com/images/themes/theme13/bg.gif",
+                "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme13/bg.gif",
+                "profile_background_tile": false,
+                "profile_image_url": "http://pbs.twimg.com/profile_images/742302060/avatars-000000620200-z21ozh-crop_normal.jpeg",
+                "profile_image_url_https": "https://pbs.twimg.com/profile_images/742302060/avatars-000000620200-z21ozh-crop_normal.jpeg",
+                "profile_banner_url": "https://pbs.twimg.com/profile_banners/14148390/1398269147",
+                "profile_link_color": "911A1A",
+                "profile_sidebar_border_color": "EEEEEE",
+                "profile_sidebar_fill_color": "FFFFFF",
+                "profile_text_color": "333333",
+                "profile_use_background_image": false,
+                "has_extended_profile": true,
+                "default_profile": false,
+                "default_profile_image": false,
+                "following": false,
+                "follow_request_sent": false,
+                "notifications": false,
+                "translator_type": "none"
+            },
+            "geo": null,
+            "coordinates": null,
+            "place": null,
+            "contributors": null,
+            "is_quote_status": false,
+            "retweet_count": 14,
+            "favorite_count": 57,
+            "favorited": false,
+            "retweeted": false,
+            "possibly_sensitive": false,
+            "lang": "en"
+        },
+        "retweet_count": 4,
+        "favorite_count": 31,
+        "favorited": false,
+        "retweeted": false,
+        "possibly_sensitive": false,
+        "lang": "en"
+    }
+]
