@@ -229,6 +229,46 @@
             45,
             262
         ],
+        "extended_entities": {
+            "media": [
+                {
+                    "id": 504727051174031360,
+                    "id_str": "504727051174031361",
+                    "indices": [
+                        116,
+                        138
+                    ],
+                    "media_url": "http://pbs.twimg.com/media/BwEmlDHCMAEGwu_.jpg",
+                    "media_url_https": "https://pbs.twimg.com/media/BwEmlDHCMAEGwu_.jpg",
+                    "url": "http://t.co/uavPaDsvNe",
+                    "display_url": "pic.twitter.com/uavPaDsvNe",
+                    "expanded_url": "https://twitter.com/UpturnedBathtub/status/504727120812453889/photo/1",
+                    "type": "photo",
+                    "sizes": {
+                        "thumb": {
+                            "w": 150,
+                            "h": 150,
+                            "resize": "crop"
+                        },
+                        "large": {
+                            "w": 1024,
+                            "h": 768,
+                            "resize": "fit"
+                        },
+                        "medium": {
+                            "w": 1024,
+                            "h": 768,
+                            "resize": "fit"
+                        },
+                        "small": {
+                            "w": 680,
+                            "h": 510,
+                            "resize": "fit"
+                        }
+                    }
+                }
+            ]
+        },
         "entities": {
             "hashtags": [],
             "symbols": [],

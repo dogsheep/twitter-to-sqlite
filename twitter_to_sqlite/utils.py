@@ -187,6 +187,8 @@ def save_tweets(db, tweets):
         if tweet.get("place"):
             db["places"].upsert(tweet["place"], pk="id", alter=True)
             tweet["place"] = tweet["place"]["id"]
+        # extended_entities contains media
+        extended_entities = tweet.pop("extended_entities", None)
         # Deal with nested retweeted_status / quoted_status
         nested = []
         for tweet_key in ("quoted_status", "retweeted_status"):
@@ -196,8 +198,12 @@ def save_tweets(db, tweets):
         if nested:
             save_tweets(db, nested)
         db["users"].upsert(user, pk="id", alter=True)
-    if tweets:
-        db["tweets"].upsert_all(tweets, pk="id", alter=True)
+        table = db["tweets"].upsert(tweet, pk="id", alter=True)
+        if extended_entities and extended_entities.get("media"):
+            for media in extended_entities["media"]:
+                # TODO: Remove this line when .m2m() grows alter=True
+                db["media"].upsert(media, pk="id", alter=True)
+                table.m2m("media", media, pk="id")
 
 
 def save_users(db, users, followed_id=None):
