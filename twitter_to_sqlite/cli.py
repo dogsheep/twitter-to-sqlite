@@ -93,8 +93,7 @@ def followers(db_path, auth, user_id, screen_name, silent):
             session, user_id, screen_name
         ):
             fetched.extend(followers_chunk)
-            with db.conn:
-                utils.save_users(db, followers_chunk, followed_id=user_id)
+            utils.save_users(db, followers_chunk, followed_id=user_id)
             update(len(followers_chunk))
 
     if not silent:
@@ -164,5 +163,13 @@ def user_timeline(db_path, auth, user_id, screen_name):
         label="Importing tweets",
         show_pos=True,
     ) as bar:
-        with db.conn:
-            utils.save_tweets(db, bar)
+        # Save them 100 at a time
+        chunk = []
+        for tweet in bar:
+            chunk.append(tweet)
+            if len(chunk) >= 100:
+                utils.save_tweets(db, chunk)
+                chunk = []
+        if chunk:
+            utils.save_tweets(db, chunk)
+

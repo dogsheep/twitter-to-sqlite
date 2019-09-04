@@ -177,7 +177,6 @@ def ensure_tables(db):
 
 
 def save_tweets(db, tweets):
-    tweets = list(tweets)
     ensure_tables(db)
     for tweet in tweets:
         transform_tweet(tweet)
