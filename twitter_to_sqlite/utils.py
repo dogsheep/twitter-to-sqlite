@@ -160,6 +160,9 @@ def ensure_tables(db):
             pk="id",
             foreign_keys=(("user", "users", "id"),),
         )
+        db["tweets"].enable_fts(
+            ["full_text"], create_triggers=True
+        )
         db["tweets"].add_foreign_key("retweeted_status", "tweets")
         db["tweets"].add_foreign_key("quoted_status", "tweets")
     if "following" not in table_names:
