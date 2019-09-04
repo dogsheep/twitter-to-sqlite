@@ -94,10 +94,6 @@ def user_args(user_id, screen_name):
     return args
 
 
-def save_tweet(db, tweet):
-    pass
-
-
 def expand_entities(s, entities):
     for _, ents in entities.items():
         for ent in ents:
