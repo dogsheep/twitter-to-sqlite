@@ -47,6 +47,7 @@ jobs:
             pip install -e .
             pip install pytest
             twitter-to-sqlite --help
+            pytest
   test-python-install:
     parameters:
       version:
@@ -75,6 +76,7 @@ jobs:
             pip install -e .
             pip install pytest
             twitter-to-sqlite --help
+            pytest
   deploy:
     docker:
       - image: circleci/python:3.6
