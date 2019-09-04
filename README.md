@@ -56,3 +56,6 @@ To retrieve followers for another account, use:
 
 See [Analyzing my Twitter followers with Datasette](https://simonwillison.net/2018/Jan/28/analyzing-my-twitter-followers/) for the original inspiration for this command.
 
+## Design notes
+
+* Tweet IDs are stored as integers, to afford sorting by ID in a sensible way

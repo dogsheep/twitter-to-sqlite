@@ -12,6 +12,22 @@ def cli():
 
 
 @cli.command()
+@click.argument("url")
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def fetch(url, auth):
+    "Make an authenticated request to the Twitter API"
+    auth = json.load(open(auth))
+    session = utils.session_for_auth(auth)
+    click.echo(json.dumps(session.get(url).json(), indent=4))
+
+
+@cli.command()
 @click.option(
     "-a",
     "--auth",
