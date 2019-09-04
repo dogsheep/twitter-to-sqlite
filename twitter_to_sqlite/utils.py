@@ -133,6 +133,8 @@ def transform_tweet(tweet):
 
 def ensure_tables(db):
     table_names = set(db.table_names())
+    if "places" not in table_names:
+        db["places"].create({"id": str}, pk="id")
     if "users" not in table_names:
         db["users"].create(
             {
@@ -156,9 +158,10 @@ def ensure_tables(db):
                 "full_text": str,
                 "retweeted_status": int,
                 "quoted_status": int,
+                "place": str,
             },
             pk="id",
-            foreign_keys=(("user", "users", "id"),),
+            foreign_keys=(("user", "users", "id"), ("place", "places", "id")),
         )
         db["tweets"].enable_fts(["full_text"], create_triggers=True)
         db["tweets"].add_foreign_key("retweeted_status", "tweets")
@@ -181,6 +184,9 @@ def save_tweets(db, tweets):
         user = tweet.pop("user")
         transform_user(user)
         tweet["user"] = user["id"]
+        if tweet.get("place"):
+            db["places"].upsert(tweet["place"], pk="id", alter=True)
+            tweet["place"] = tweet["place"]["id"]
         # Deal with nested retweeted_status / quoted_status
         nested = []
         for tweet_key in ("quoted_status", "retweeted_status"):

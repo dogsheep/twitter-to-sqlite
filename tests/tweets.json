@@ -394,7 +394,40 @@
         },
         "geo": null,
         "coordinates": null,
-        "place": null,
+        "place": {
+            "id": "01a9a39529b27f36",
+            "url": "https://api.twitter.com/1.1/geo/id/01a9a39529b27f36.json",
+            "place_type": "city",
+            "name": "Manhattan",
+            "full_name": "Manhattan, NY",
+            "country_code": "US",
+            "country": "United States",
+            "contained_within": [],
+            "bounding_box": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -74.026675,
+                            40.683935
+                        ],
+                        [
+                            -73.910408,
+                            40.683935
+                        ],
+                        [
+                            -73.910408,
+                            40.877483
+                        ],
+                        [
+                            -74.026675,
+                            40.877483
+                        ]
+                    ]
+                ]
+            },
+            "attributes": {}
+        },
         "contributors": null,
         "is_quote_status": false,
         "retweet_count": 0,

@@ -10,9 +10,14 @@ def tweets():
     return json.load(open(pathlib.Path(__file__).parent / "tweets.json"))
 
 
-def test_save_tweets(tweets):
+@pytest.fixture
+def db(tweets):
     db = sqlite_utils.Database(memory=True)
     utils.save_tweets(db, tweets)
+    return db
+
+
+def test_tables(db):
     assert {
         "users_fts_idx",
         "users_fts_data",
@@ -20,6 +25,7 @@ def test_save_tweets(tweets):
         "tweets_fts_idx",
         "tweets",
         "users",
+        "places",
         "following",
         "tweets_fts_data",
         "users_fts_config",
@@ -28,8 +34,12 @@ def test_save_tweets(tweets):
         "tweets_fts_docsize",
         "users_fts_docsize",
     } == set(db.table_names())
+
+
+def test_save_tweets(db):
     tweet_rows = list(db["tweets"].rows)
     user_rows = list(db["users"].rows)
+    place_rows = list(db["places"].rows)
     assert [
         {
             "id": 861696799362478100,
@@ -38,6 +48,7 @@ def test_save_tweets(tweets):
             "full_text": "If you use Photos (mac) &amp; Live Photos, run this command to generate a lovely sound collage of where you’ve been https://gist.github.com/bwhitman/5be2f905556a25145dbac74fe4080739",
             "retweeted_status": None,
             "quoted_status": None,
+            "place": None,
             "truncated": 0,
             "display_text_range": "[0, 139]",
             "source": '<a href="http://itunes.apple.com/us/app/twitter/id409789998?mt=12" rel="nofollow">Twitter for Mac</a>',
@@ -46,7 +57,6 @@ def test_save_tweets(tweets):
             "in_reply_to_screen_name": None,
             "geo": None,
             "coordinates": None,
-            "place": None,
             "contributors": None,
             "is_quote_status": 0,
             "retweet_count": 14,
@@ -63,6 +73,7 @@ def test_save_tweets(tweets):
             "full_text": "Finally got around to running this script. It is BRILLIANT - it produces a concatenated .wav file of the audio from every live photo you've ever taken.\n\nNeeds quite a lot of disk space to run - the /tmp/picblast folder can take multiple GB https://twitter.com/bwhitman/status/861696799362478085",
             "retweeted_status": None,
             "quoted_status": 861696799362478100,
+            "place": None,
             "truncated": 0,
             "display_text_range": "[0, 239]",
             "source": '<a href="https://mobile.twitter.com" rel="nofollow">Twitter Web App</a>',
@@ -71,7 +82,6 @@ def test_save_tweets(tweets):
             "in_reply_to_screen_name": None,
             "geo": None,
             "coordinates": None,
-            "place": None,
             "contributors": None,
             "is_quote_status": 1,
             "retweet_count": 4,
@@ -88,6 +98,7 @@ def test_save_tweets(tweets):
             "full_text": "@scientiffic @Wikipedia @unsplash @cagarrity The @inaturalist API is amazingly powerful and fun with no auth and no rate limit. We used it to build http://www.owlsnearme.com - see also @Natbat's great tutorial on using it with @observablehq https://24ways.org/2018/observable-notebooks-and-inaturalist/",
             "retweeted_status": None,
             "quoted_status": None,
+            "place": "01a9a39529b27f36",
             "truncated": 0,
             "display_text_range": "[45, 262]",
             "source": '<a href="http://twitter.com/download/iphone" rel="nofollow">Twitter for iPhone</a>',
@@ -96,7 +107,6 @@ def test_save_tweets(tweets):
             "in_reply_to_screen_name": "scientiffic",
             "geo": None,
             "coordinates": None,
-            "place": None,
             "contributors": None,
             "is_quote_status": 0,
             "retweet_count": 0,
@@ -113,6 +123,7 @@ def test_save_tweets(tweets):
             "full_text": "My new post: an explainer on “carbon capture &amp; utilization” (CCU). CO2 captured from waste gases or the ambient air can be used to make valuable products. Could CCU help the carbon capture industry scale up? https://www.vox.com/energy-and-environment/2019/9/4/20829431/climate-change-carbon-capture-utilization-sequestration-ccu-ccs?utm_campaign=drvox&utm_content=chorus&utm_medium=social&utm_source=twitter",
             "retweeted_status": None,
             "quoted_status": None,
+            "place": None,
             "truncated": 0,
             "display_text_range": "[0, 235]",
             "source": '<a href="http://www.voxmedia.com" rel="nofollow">Vox Media</a>',
@@ -121,7 +132,6 @@ def test_save_tweets(tweets):
             "in_reply_to_screen_name": None,
             "geo": None,
             "coordinates": None,
-            "place": None,
             "contributors": None,
             "is_quote_status": 0,
             "retweet_count": 42,
@@ -138,6 +148,7 @@ def test_save_tweets(tweets):
             "full_text": "RT @drvox: My new post: an explainer on “carbon capture &amp; utilization” (CCU). CO2 captured from waste gases or the ambient air can be used…",
             "retweeted_status": 1169242008432644000,
             "quoted_status": None,
+            "place": None,
             "truncated": 0,
             "display_text_range": "[0, 143]",
             "source": '<a href="http://twitter.com/download/iphone" rel="nofollow">Twitter for iPhone</a>',
@@ -146,7 +157,6 @@ def test_save_tweets(tweets):
             "in_reply_to_screen_name": None,
             "geo": None,
             "coordinates": None,
-            "place": None,
             "contributors": None,
             "is_quote_status": 0,
             "retweet_count": 42,
@@ -285,3 +295,17 @@ def test_save_tweets(tweets):
             "translator_type": "none",
         },
     ] == user_rows
+    assert [
+        {
+            "id": "01a9a39529b27f36",
+            "url": "https://api.twitter.com/1.1/geo/id/01a9a39529b27f36.json",
+            "place_type": "city",
+            "name": "Manhattan",
+            "full_name": "Manhattan, NY",
+            "country_code": "US",
+            "country": "United States",
+            "contained_within": "[]",
+            "bounding_box": '{"type": "Polygon", "coordinates": [[[-74.026675, 40.683935], [-73.910408, 40.683935], [-73.910408, 40.877483], [-74.026675, 40.877483]]]}',
+            "attributes": "{}",
+        }
+    ] == place_rows
