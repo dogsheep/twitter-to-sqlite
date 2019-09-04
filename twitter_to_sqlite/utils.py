@@ -1,5 +1,6 @@
 from requests_oauthlib import OAuth1Session
 from dateutil import parser
+import datetime
 import time
 import json
 import urllib.parse
@@ -130,10 +131,23 @@ def transform_tweet(tweet):
     tweet["created_at"] = parser.parse(tweet["created_at"]).isoformat()
 
 
-def save_tweets(db, tweets):
-    if "users" not in db.table_names():
-        db["users"].create({"id": int}, pk="id")
-    if "tweets" not in db.table_names():
+def ensure_tables(db):
+    table_names = set(db.table_names())
+    if "users" not in table_names:
+        db["users"].create(
+            {
+                "id": int,
+                "screen_name": str,
+                "name": str,
+                "description": str,
+                "location": str,
+            },
+            pk="id",
+        )
+        db["users"].enable_fts(
+            ["name", "screen_name", "description", "location"], create_triggers=True
+        )
+    if "tweets" not in table_names:
         db["tweets"].create(
             {
                 "id": int,
@@ -148,7 +162,19 @@ def save_tweets(db, tweets):
         )
         db["tweets"].add_foreign_key("retweeted_status", "tweets")
         db["tweets"].add_foreign_key("quoted_status", "tweets")
+    if "following" not in table_names:
+        db["following"].create(
+            {"followed_id": int, "follower_id": int, "first_seen": str},
+            pk=("followed_id", "follower_id"),
+            foreign_keys=(
+                ("followed_id", "users", "id"),
+                ("follower_id", "users", "id"),
+            ),
+        )
 
+
+def save_tweets(db, tweets):
+    ensure_tables(db)
     for tweet in tweets:
         transform_tweet(tweet)
         user = tweet.pop("user")
@@ -164,3 +190,23 @@ def save_tweets(db, tweets):
             save_tweets(db, nested)
         db["users"].upsert(user, pk="id", alter=True)
     db["tweets"].upsert_all(tweets, pk="id", alter=True)
+
+
+def save_users(db, users, followed_id=None):
+    ensure_tables(db)
+    for user in users:
+        transform_user(user)
+    db["users"].upsert_all(users, pk="id", alter=True)
+    if followed_id:
+        first_seen = datetime.datetime.utcnow().isoformat()
+        db["following"].insert_all(
+            (
+                {
+                    "followed_id": followed_id,
+                    "follower_id": user["id"],
+                    "first_seen": first_seen,
+                }
+                for user in users
+            ),
+            ignore=True,
+        )

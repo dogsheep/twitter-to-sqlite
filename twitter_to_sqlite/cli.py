@@ -83,18 +83,21 @@ def followers(db_path, auth, user_id, screen_name, silent):
     # Get the follower count, so we can have a progress bar
     count = 0
 
+    profile = utils.get_profile(session, user_id, screen_name)
+    screen_name = profile["screen_name"]
+    user_id = profile["id"]
+
     def go(update):
+        utils.save_users(db, [profile])
         for followers_chunk in utils.fetch_follower_chunks(
             session, user_id, screen_name
         ):
             fetched.extend(followers_chunk)
             with db.conn:
-                db["followers"].upsert_all(followers_chunk)
+                utils.save_users(db, followers_chunk, followed_id=user_id)
             update(len(followers_chunk))
 
     if not silent:
-        profile = utils.get_profile(session, user_id, screen_name)
-        screen_name = profile["screen_name"]
         count = profile["followers_count"]
         with click.progressbar(
             length=count,
@@ -103,7 +106,7 @@ def followers(db_path, auth, user_id, screen_name, silent):
             go(bar.update)
     else:
         go(lambda x: None)
-    #open("/tmp/all.json", "w").write(json.dumps(fetched, indent=4))
+    # open("/tmp/all.json", "w").write(json.dumps(fetched, indent=4))
 
 
 @cli.command()
