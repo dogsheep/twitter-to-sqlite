@@ -51,6 +51,8 @@ To load tweets for another user, use `--screen_name`:
 
     $ twitter-to-sqlite user-timeline twitter.db --screen_name=cleopaws
 
+Twitter's API only returns up to around 3,200 tweets for most user accounts, but you may find that it returns all available tweets for your own user account.
+
 ## Retrieving Twitter followers
 
 The `followers` command retrieves details of every follower of the specified account. You can use it to retrieve your own followers, or you can pass a screen_name to pull the followers for another account.
