@@ -156,10 +156,13 @@ def user_timeline(db_path, auth, user_id, screen_name):
     "Save tweets posted by specified user"
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
+    profile = utils.get_profile(session, user_id, screen_name)
     db = sqlite_utils.Database(db_path)
     with click.progressbar(
         utils.fetch_user_timeline(session, user_id, screen_name),
+        length=profile["statuses_count"],
         label="Importing tweets",
         show_pos=True,
     ) as bar:
-        utils.save_tweets(db, bar)
+        with db.conn:
+            utils.save_tweets(db, bar)

@@ -174,6 +174,7 @@ def ensure_tables(db):
 
 
 def save_tweets(db, tweets):
+    tweets = list(tweets)
     ensure_tables(db)
     for tweet in tweets:
         transform_tweet(tweet)
@@ -189,7 +190,8 @@ def save_tweets(db, tweets):
         if nested:
             save_tweets(db, nested)
         db["users"].upsert(user, pk="id", alter=True)
-    db["tweets"].upsert_all(tweets, pk="id", alter=True)
+    if tweets:
+        db["tweets"].upsert_all(tweets, pk="id", alter=True)
 
 
 def save_users(db, users, followed_id=None):
