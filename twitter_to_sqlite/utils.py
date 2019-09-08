@@ -49,10 +49,12 @@ def get_profile(session, user_id, screen_name):
     return session.get(url).json()
 
 
-def fetch_timeline(session, url, args, sleep=1):
+def fetch_timeline(session, url, args, sleep=1, stop_after=None):
     # See https://developer.twitter.com/en/docs/tweets/timelines/guides/working-with-timelines
     args = dict(args)
     args["count"] = 200
+    if stop_after is not None:
+        args["count"] = stop_after
     args["tweet_mode"] = "extended"
     min_seen_id = None
     while True:
@@ -64,16 +66,19 @@ def fetch_timeline(session, url, args, sleep=1):
         for tweet in tweets:
             yield tweet
         min_seen_id = min(t["id"] for t in tweets)
+        if stop_after is not None:
+            break
         time.sleep(sleep)
 
 
-def fetch_user_timeline(session, user_id, screen_name):
+def fetch_user_timeline(session, user_id, screen_name, stop_after=None):
     args = user_args(user_id, screen_name)
     yield from fetch_timeline(
         session,
         "https://api.twitter.com/1.1/statuses/user_timeline.json",
         args,
         sleep=1,
+        stop_after=stop_after,
     )
 
 
