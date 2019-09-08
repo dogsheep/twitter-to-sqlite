@@ -229,3 +229,26 @@ def save_users(db, users, followed_id=None):
             ),
             ignore=True,
         )
+
+
+def fetch_user_batches(session, ids_or_screen_names, use_ids=False, sleep=1):
+    # Yields lists of up to 70 users (tried 100 but got this error:
+    # # {'code': 18, 'message': 'Too many terms specified in query.'} )
+    batches = []
+    batch = []
+    for id in ids_or_screen_names:
+        batch.append(id)
+        if len(batch) == 70:
+            batches.append(batch)
+            batch = []
+    if batch:
+        batches.append(batch)
+    url = "https://api.twitter.com/1.1/users/lookup.json"
+    for batch in batches:
+        if use_ids:
+            args = {"user_id": ",".join(map(str, batch))}
+        else:
+            args = {"screen_name": ",".join(batch)}
+        users = session.get(url, params=args).json()
+        yield users
+        time.sleep(sleep)

@@ -149,11 +149,7 @@ def favorites(db_path, auth, user_id, screen_name):
     default="auth.json",
     help="Path to auth.json token file",
 )
-@click.option(
-    "--stop_after",
-    type=int,
-    help="Only pull this number of recent tweets",
-)
+@click.option("--stop_after", type=int, help="Only pull this number of recent tweets")
 @click.option("--user_id", help="Numeric user ID")
 @click.option("--screen_name", help="Screen name")
 def user_timeline(db_path, auth, stop_after, user_id, screen_name):
@@ -177,3 +173,27 @@ def user_timeline(db_path, auth, stop_after, user_id, screen_name):
                 chunk = []
         if chunk:
             utils.save_tweets(db, chunk)
+
+
+@cli.command(name="users-lookup")
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("screen_name", nargs=-1)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option("--ids", is_flag=True, help="Treat input as user IDs, not screen names")
+def users_lookup(db_path, screen_name, auth, ids):
+    "Fetch user accounts"
+    auth = json.load(open(auth))
+    session = utils.session_for_auth(auth)
+    db = sqlite_utils.Database(db_path)
+    for batch in utils.fetch_user_batches(session, screen_name, ids):
+        utils.save_users(db, batch)
