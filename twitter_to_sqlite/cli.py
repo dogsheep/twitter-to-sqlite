@@ -5,6 +5,25 @@ import json
 from twitter_to_sqlite import utils
 
 
+def add_identifier_options(subcommand):
+    for decorator in reversed(
+        (
+            click.argument("identifiers", type=str, nargs=-1),
+            click.option(
+                "--attach",
+                type=click.Path(
+                    file_okay=True, dir_okay=False, allow_dash=False, exists=True
+                ),
+                multiple=True,
+                help="Additional database file to attach",
+            ),
+            click.option("--sql", help="SQL query to fetch identifiers to use"),
+        )
+    ):
+        subcommand = decorator(subcommand)
+    return subcommand
+
+
 @click.group()
 @click.version_option()
 def cli():
@@ -181,7 +200,7 @@ def user_timeline(db_path, auth, stop_after, user_id, screen_name):
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
     required=True,
 )
-@click.argument("screen_name", nargs=-1)
+@add_identifier_options
 @click.option(
     "-a",
     "--auth",
@@ -190,10 +209,11 @@ def user_timeline(db_path, auth, stop_after, user_id, screen_name):
     help="Path to auth.json token file",
 )
 @click.option("--ids", is_flag=True, help="Treat input as user IDs, not screen names")
-def users_lookup(db_path, screen_name, auth, ids):
+def users_lookup(db_path, identifiers, attach, sql, auth, ids):
     "Fetch user accounts"
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     db = sqlite_utils.Database(db_path)
-    for batch in utils.fetch_user_batches(session, screen_name, ids):
+    identifiers = utils.resolve_identifiers(db, identifiers, attach, sql)
+    for batch in utils.fetch_user_batches(session, identifiers, ids):
         utils.save_users(db, batch)

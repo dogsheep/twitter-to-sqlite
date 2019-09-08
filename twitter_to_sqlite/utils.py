@@ -2,6 +2,7 @@ from requests_oauthlib import OAuth1Session
 from dateutil import parser
 import datetime
 import time
+import pathlib
 import json
 import urllib.parse
 
@@ -252,3 +253,23 @@ def fetch_user_batches(session, ids_or_screen_names, use_ids=False, sleep=1):
         users = session.get(url, params=args).json()
         yield users
         time.sleep(sleep)
+
+
+def resolve_identifiers(db, identifiers, attach, sql):
+    if sql:
+        if attach:
+            for filepath in attach:
+                if ":" in filepath:
+                    alias, filepath = filepath.split(":", 1)
+                else:
+                    alias = filepath.split("/")[-1].split(".")[0]
+                attach_sql = """
+                    ATTACH DATABASE '{}' AS [{}];
+                """.format(
+                    str(pathlib.Path(filepath).resolve()), alias
+                )
+                db.conn.execute(attach_sql)
+        sql_identifiers = [r[0] for r in db.conn.execute(sql).fetchall()]
+    else:
+        sql_identifiers = []
+    return list(identifiers) + sql_identifiers
