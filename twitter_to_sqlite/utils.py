@@ -273,3 +273,39 @@ def resolve_identifiers(db, identifiers, attach, sql):
     else:
         sql_identifiers = []
     return list(identifiers) + sql_identifiers
+
+
+def fetch_and_save_list(db, session, identifier, identifier_is_id=False):
+    show_url = "https://api.twitter.com/1.1/lists/show.json"
+    args = {}
+    if identifier_is_id:
+        args["list_id"] = identifier
+    else:
+        screen_name, slug = identifier.split("/")
+        args.update({"owner_screen_name": screen_name, "slug": slug})
+    # First fetch the list details
+    data = session.get(show_url, params=args).json()
+    list_id = data["id"]
+    del data["id_str"]
+    user = data.pop("user")
+    save_users(db, [user])
+    data["user"] = user["id"]
+    data["created_at"] = parser.parse(data["created_at"])
+    db["lists"].upsert(data, pk="id", foreign_keys=("user",))
+    # Now fetch the members
+    url = "https://api.twitter.com/1.1/lists/members.json"
+    cursor = -1
+    while cursor:
+        args.update({"count": 5000, "cursor": cursor})
+        body = session.get(url, params=args).json()
+        users = body["users"]
+        save_users(db, users)
+        db["list_members"].upsert_all(
+            ({"list": list_id, "user": user["id"]} for user in users),
+            pk=("list", "user"),
+            foreign_keys=("list", "user"),
+        )
+        cursor = body["next_cursor"]
+        if not cursor:
+            break
+        time.sleep(1)  # Rate limit = 900 per 15 minutes

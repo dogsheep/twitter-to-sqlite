@@ -217,3 +217,29 @@ def users_lookup(db_path, identifiers, attach, sql, auth, ids):
     identifiers = utils.resolve_identifiers(db, identifiers, attach, sql)
     for batch in utils.fetch_user_batches(session, identifiers, ids):
         utils.save_users(db, batch)
+
+
+@cli.command(name="list-members")
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("identifiers", type=str, nargs=-1)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option(
+    "--ids", is_flag=True, help="Treat input as list IDs, not user/slug strings"
+)
+def list_members(db_path, identifiers, auth, ids):
+    "Fetch lists - accepts one or more screen_name/list_slug identifiers"
+    auth = json.load(open(auth))
+    session = utils.session_for_auth(auth)
+    db = sqlite_utils.Database(db_path)
+    for identifier in identifiers:
+        utils.fetch_and_save_list(db, session, identifier, ids)

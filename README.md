@@ -79,6 +79,18 @@ To retrieve followers for another account, use:
 
 See [Analyzing my Twitter followers with Datasette](https://simonwillison.net/2018/Jan/28/analyzing-my-twitter-followers/) for the original inspiration for this command.
 
+## Retrieving Twitter followers
+
+The `list-members` command can be used to retrieve details of one or more Twitter lists, including all of their members.
+
+    $ twitter-to-sqlite list-members members.db simonw/the-good-place
+
+You can pass multiple `screen_name/list_slug` identifiers.
+
+If you know the numeric IDs of the lists instead, you can use `--ids`:
+
+    $ twitter-to-sqlite list-members members.db 927913322841653248
+
 ## Design notes
 
 * Tweet IDs are stored as integers, to afford sorting by ID in a sensible way
