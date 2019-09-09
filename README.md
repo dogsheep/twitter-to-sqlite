@@ -89,7 +89,7 @@ You can pass multiple `screen_name/list_slug` identifiers.
 
 If you know the numeric IDs of the lists instead, you can use `--ids`:
 
-    $ twitter-to-sqlite list-members members.db 927913322841653248
+    $ twitter-to-sqlite list-members members.db 927913322841653248 --ids
 
 ## Design notes
 
