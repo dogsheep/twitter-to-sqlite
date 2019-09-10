@@ -79,7 +79,7 @@ To retrieve followers for another account, use:
 
 See [Analyzing my Twitter followers with Datasette](https://simonwillison.net/2018/Jan/28/analyzing-my-twitter-followers/) for the original inspiration for this command.
 
-## Retrieving Twitter followers
+## Retrieving Twitter list memberships
 
 The `list-members` command can be used to retrieve details of one or more Twitter lists, including all of their members.
 
