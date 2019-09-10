@@ -1,4 +1,5 @@
 import click
+import datetime
 import os
 import sqlite_utils
 import json
@@ -243,3 +244,103 @@ def list_members(db_path, identifiers, auth, ids):
     db = sqlite_utils.Database(db_path)
     for identifier in identifiers:
         utils.fetch_and_save_list(db, session, identifier, ids)
+
+
+@cli.command(name="followers-ids")
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@add_identifier_options
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option(
+    "--ids", is_flag=True, help="Treat input as list IDs, not user/slug strings"
+)
+@click.option(
+    "--sleep", type=int, default=61, help="Seconds to sleep between API calls"
+)
+def followers_ids(db_path, identifiers, attach, sql, auth, ids, sleep):
+    "Populate followers table with IDs of account followers"
+    _shared_friends_ids_followers_ids(
+        db_path,
+        identifiers,
+        attach,
+        sql,
+        auth,
+        ids,
+        sleep,
+        api_url="https://api.twitter.com/1.1/followers/ids.json",
+        first_key="followed_id",
+        second_key="follower_id",
+    )
+
+
+@cli.command(name="friends-ids")
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@add_identifier_options
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option(
+    "--ids", is_flag=True, help="Treat input as list IDs, not user/slug strings"
+)
+@click.option(
+    "--sleep", type=int, default=61, help="Seconds to sleep between API calls"
+)
+def friends_ids(db_path, identifiers, attach, sql, auth, ids, sleep):
+    "Populate followers table with IDs of account friends"
+    _shared_friends_ids_followers_ids(
+        db_path,
+        identifiers,
+        attach,
+        sql,
+        auth,
+        ids,
+        sleep,
+        api_url="https://api.twitter.com/1.1/friends/ids.json",
+        first_key="follower_id",
+        second_key="followed_id",
+    )
+
+
+def _shared_friends_ids_followers_ids(
+    db_path, identifiers, attach, sql, auth, ids, sleep, api_url, first_key, second_key
+):
+    auth = json.load(open(auth))
+    session = utils.session_for_auth(auth)
+    db = sqlite_utils.Database(db_path)
+    identifiers = utils.resolve_identifiers(db, identifiers, attach, sql)
+    for identifier in identifiers:
+        # Make sure this user is saved
+        arg_user_id = identifier if ids else None
+        arg_screen_name = None if ids else identifier
+        profile = utils.get_profile(session, arg_user_id, arg_screen_name)
+        user_id = profile["id"]
+        utils.save_users(db, [profile])
+        args = {("user_id" if ids else "screen_name"): identifier}
+        for id_batch in utils.cursor_paginate(
+            session, api_url, args, "ids", 5000, sleep
+        ):
+            first_seen = datetime.datetime.utcnow().isoformat()
+            db["following"].insert_all(
+                (
+                    {first_key: user_id, second_key: other_id, "first_seen": first_seen}
+                    for other_id in id_batch
+                ),
+                ignore=True,
+            )

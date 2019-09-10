@@ -309,3 +309,20 @@ def fetch_and_save_list(db, session, identifier, identifier_is_id=False):
         if not cursor:
             break
         time.sleep(1)  # Rate limit = 900 per 15 minutes
+
+
+def cursor_paginate(session, url, args, key, page_size=200, sleep=None):
+    "Execute cursor pagination, yelding 'key' for each page"
+    args = dict(args)
+    args["page_size"] = page_size
+    cursor = -1
+    while cursor:
+        args["cursor"] = cursor
+        r = session.get(url, params=args)
+        body = r.json()
+        yield body[key]
+        cursor = body["next_cursor"]
+        if not cursor:
+            break
+        if sleep is not None:
+            time.sleep(sleep)

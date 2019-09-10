@@ -91,6 +91,23 @@ If you know the numeric IDs of the lists instead, you can use `--ids`:
 
     $ twitter-to-sqlite list-members members.db 927913322841653248 --ids
 
+## Retrieving just follower and friend IDs
+
+It's also possible to retrieve just the numeric Twitter IDs of the accounts that specific users are following ("friends" in Twitter's API terminology) or followed-by:
+
+    $ twitter-to-sqlite followers-ids members.db simonw cleopaws
+
+This will populate the `following` table with `followed_id`/`follower_id` pairs for the two specified accounts, listing every account ID that is following either of those two accounts.
+
+    $ twitter-to-sqlite friends-ids members.db simonw cleopaws
+
+This will do the same thing but pull the IDs that those accounts are following.
+
+Both of these commands also support `--sql` and `--attach` as an alternative to passing screen names as direct command-line arguments. You can use `--ids` to process the inputs as user IDs rather than screen names.
+
+The underlying Twitter APIs have a rate limit of 15 requests every 15 minutes - though they do return up to 5,000 IDs in each call. By default both of these subcommands will wait for 61 seconds between API calls in order to stay within the rate limit - you can adjust this behaviour down to just one second delay if you know you will not be making many calls using `--sleep=1`.
+
 ## Design notes
 
 * Tweet IDs are stored as integers, to afford sorting by ID in a sensible way
+* While we configure foreign key relationships between tables, we do not ask SQLite to enforce them. This is used by the `following` table to allow the `followers-ids` and `friends-ids` commands to populate it with user IDs even if the user accounts themselves are not yet present in the `users` table.
