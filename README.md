@@ -23,7 +23,7 @@ Once you have created your application, navigate to the "Keys and tokens" page a
 
 You will need to save all four of these values to a JSON file in order to use this tool.
 
-You can create that tool by running the following command and pasting in the values at the prompts:
+You can create that JSON file by running the following command and pasting in the values at the prompts:
 
     $ twitter-to-sqlite auth
     Create an app here: https://developer.twitter.com/en/apps
