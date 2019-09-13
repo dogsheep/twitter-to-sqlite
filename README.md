@@ -107,6 +107,45 @@ Both of these commands also support `--sql` and `--attach` as an alternative to 
 
 The underlying Twitter APIs have a rate limit of 15 requests every 15 minutes - though they do return up to 5,000 IDs in each call. By default both of these subcommands will wait for 61 seconds between API calls in order to stay within the rate limit - you can adjust this behaviour down to just one second delay if you know you will not be making many calls using `--sleep=1`.
 
+## Providing input from a SQL query with --sql and --attach
+
+This option is available for some subcommands - run `twitter-to-sqlite command-name --help` to check.
+
+You can provide Twitter screen names (or user IDs) directly as command-line arguments, or you can provide those screen names or IDs by executing a SQL query.
+
+For example: consider a SQLite database with an `attendees` table listing names and Twitter accounts - something like this:
+
+| First   | Last       | Twitter      |
+|---------|------------|--------------|
+| Simon   | Willison   | simonw       |
+| Avril   | Lavigne    | AvrilLavigne |
+
+You can run the `users-lookup` command to pull the Twitter profile of every user listed in that database by loading the screen names using a `--sql` query:
+
+    $ twitter-to-sqlite users-lookup my.db --sql="select Twitter from attendees"
+
+If your database table contains Twitter IDs, you can select those IDs and pass the `--ids` argument. For example, to fetch the profiles of users who have had their user IDs inserted into the `following` table using the `twitter-to-sqlite friends-ids` command:
+
+    $ twitter-to-sqlite users-lookup my.db --sql="select follower_id from following" --ids
+
+Or to avoid re-fetching users that have already been fetched:
+
+    $ twitter-to-sqlite users-lookup my.db \
+        --sql="select followed_id from following where followed_id not in (
+            select id from users)" --ids
+
+If your data lives in a separate database file you can attach it using `--attach`. For example, consider the attendees example above but the data lives in an `attendees.db` file, and you want to fetch the user profiles into a `tweets.db` file. You could do that like this:
+
+    $ twitter-to-sqlite users-lookup tweets.db \
+        --attach=attendees.db \
+        --sql="select Twitter from attendees.attendees"
+
+The filename (without the extension) will be used as the database alias within SQLite. If you want a different alias for some reason you can specify that with a colon like this:
+
+    $ twitter-to-sqlite users-lookup tweets.db \
+        --attach=foo:attendees.db \
+        --sql="select Twitter from foo.attendees"
+
 ## Design notes
 
 * Tweet IDs are stored as integers, to afford sorting by ID in a sensible way
