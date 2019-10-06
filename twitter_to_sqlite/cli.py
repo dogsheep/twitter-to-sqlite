@@ -2,6 +2,7 @@ import click
 import datetime
 import os
 import sqlite_utils
+import time
 import json
 from twitter_to_sqlite import utils
 
@@ -318,6 +319,60 @@ def friends_ids(db_path, identifiers, attach, sql, auth, ids, sleep):
     )
 
 
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("track", type=str, required=True, nargs=-1)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option("--verbose", is_flag=True, help="Verbose mode: display every tweet")
+def track(db_path, track, auth, verbose):
+    "Experimental: Save tweets matching these keywords in real-time"
+    auth = json.load(open(auth))
+    session = utils.session_for_auth(auth)
+    db = sqlite_utils.Database(db_path)
+    for tweet in utils.stream_filter(session, track=track):
+        if verbose:
+            print(json.dumps(tweet, indent=2))
+        with db.conn:
+            utils.save_tweets(db, [tweet])
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("follow", type=str, required=True, nargs=-1)
+@click.option("--verbose", is_flag=True, help="Verbose mode: display every tweet")
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def follow(db_path, follow, auth, verbose):
+    "Experimental: Follow these Twitter users (numeric user IDs required) and save tweets in real-time"
+    auth = json.load(open(auth))
+    session = utils.session_for_auth(auth)
+    db = sqlite_utils.Database(db_path)
+    for tweet in utils.stream_filter(session, follow=follow):
+        if verbose:
+            print(json.dumps(tweet, indent=2))
+        with db.conn:
+            utils.save_tweets(db, [tweet])
+
+
 def _shared_friends_ids_followers_ids(
     db_path, identifiers, attach, sql, auth, ids, sleep, api_url, first_key, second_key
 ):
@@ -344,3 +399,4 @@ def _shared_friends_ids_followers_ids(
                 ),
                 ignore=True,
             )
+        time.sleep(sleep)

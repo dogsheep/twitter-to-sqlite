@@ -341,3 +341,47 @@ class TwitterApiError(Exception):
 def raise_if_error(r):
     if "errors" in r.json():
         raise TwitterApiError(r.headers, r.json()["errors"])
+
+
+def stream_filter(session, track=None, follow=None, locations=None, language=None):
+    session.stream = True
+    args = {"tweet_mode": "extended"}
+    for key, value in (
+        ("track", track),
+        ("follow", follow),
+        ("locations", locations),
+        ("language", language),
+    ):
+        if value is None:
+            continue
+        if not isinstance(value, str):
+            value = ",".join(map(str, value))
+        args[key] = value
+    while True:
+        response = session.post(
+            "https://stream.twitter.com/1.1/statuses/filter.json", params=args
+        )
+        for line in response.iter_lines(chunk_size=10000):
+            if line.strip().startswith(b"{"):
+                tweet = json.loads(line)
+                # Only yield tweet if it has an 'id' and 'created_at'
+                # - otherwise it's probably a maintenance message, see
+                # https://developer.twitter.com/en/docs/tweets/filter-realtime/overview/statuses-filter
+                if "id" in tweet and "created_at" in tweet:
+                    # 'Fix' weird tweets from streaming API
+                    fix_streaming_tweet(tweet)
+                    yield tweet
+                else:
+                    print(tweet)
+        time.sleep(1)
+
+
+def fix_streaming_tweet(tweet):
+    if "extended_tweet" in tweet:
+        tweet.update(tweet.pop("extended_tweet"))
+    if "full_text" not in tweet:
+        tweet["full_text"] = tweet["text"]
+    if "retweeted_status" in tweet:
+        fix_streaming_tweet(tweet["retweeted_status"])
+    if "quoted_status" in tweet:
+        fix_streaming_tweet(tweet["quoted_status"])
