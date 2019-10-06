@@ -112,11 +112,11 @@ def expand_entities(s, entities):
 
 def transform_user(user):
     user["created_at"] = parser.parse(user["created_at"])
-    if user["description"] and "description" in user["entities"]:
+    if user["description"] and "description" in user.get("entities", {}):
         user["description"] = expand_entities(
             user["description"], user["entities"]["description"]
         )
-    if user["url"] and "url" in user["entities"]:
+    if user["url"] and "url" in user.get("entities", {}):
         user["url"] = expand_entities(user["url"], user["entities"]["url"])
     user.pop("entities", None)
     user.pop("status", None)
@@ -319,6 +319,7 @@ def cursor_paginate(session, url, args, key, page_size=200, sleep=None):
     while cursor:
         args["cursor"] = cursor
         r = session.get(url, params=args)
+        raise_if_error(r)
         body = r.json()
         yield body[key]
         cursor = body["next_cursor"]
@@ -326,3 +327,17 @@ def cursor_paginate(session, url, args, key, page_size=200, sleep=None):
             break
         if sleep is not None:
             time.sleep(sleep)
+
+
+class TwitterApiError(Exception):
+    def __init__(self, headers, body):
+        self.headers = headers
+        self.body = body
+
+    def __repr__(self):
+        return "{}: {}".format(self.body, self.headers)
+
+
+def raise_if_error(r):
+    if "errors" in r.json():
+        raise TwitterApiError(r.headers, r.json()["errors"])
