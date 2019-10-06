@@ -158,9 +158,9 @@ To track keywords, use the `track` command:
 
     $ twitter-to-sqlite track tweets.db kakapo
 
-This command will continue to run until you hit Ctrl+C. It will capture any tweets mentioning the keyword [kakap](https://en.wikipedia.org/wiki/Kakapo) and store them in the `tweets.db` database file.
+This command will continue to run until you hit Ctrl+C. It will capture any tweets mentioning the keyword [kakapo](https://en.wikipedia.org/wiki/Kakapo) and store them in the `tweets.db` database file.
 
-You can pass multiple keywords as a space separated list. This will capture tweets matching either of those keywords.
+You can pass multiple keywords as a space separated list. This will capture tweets matching either of those keywords:
 
     $ twitter-to-sqlite track tweets.db kakapo raccoon
 
@@ -182,7 +182,7 @@ The `follow` command will capture all tweets that are relevant to one or more sp
 
 This includes tweets by those users, tweets that reply to or quote those users and retweets by that user. See [the Twitter follow documentation](https://developer.twitter.com/en/docs/tweets/filter-realtime/guides/basic-stream-parameters#follow) for full details.
 
-This command accepts one or more screen names.
+The command accepts one or more screen names.
 
 You can feed it numeric Twitter user IDs instead of screen names by using the `--ids` flag.
 
