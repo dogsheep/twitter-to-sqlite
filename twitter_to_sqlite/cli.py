@@ -352,8 +352,8 @@ def track(db_path, track, auth, verbose):
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
     required=True,
 )
-@click.argument("follow", type=str, required=True, nargs=-1)
-@click.option("--verbose", is_flag=True, help="Verbose mode: display every tweet")
+@add_identifier_options
+@click.option("--ids", is_flag=True, help="Treat input as user IDs, not screen names")
 @click.option(
     "-a",
     "--auth",
@@ -361,11 +361,22 @@ def track(db_path, track, auth, verbose):
     default="auth.json",
     help="Path to auth.json token file",
 )
-def follow(db_path, follow, auth, verbose):
+@click.option("--verbose", is_flag=True, help="Verbose mode: display every tweet")
+def follow(db_path, identifiers, attach, sql, ids, auth, verbose):
     "Experimental: Follow these Twitter users (numeric user IDs required) and save tweets in real-time"
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     db = sqlite_utils.Database(db_path)
+    identifiers = utils.resolve_identifiers(db, identifiers, attach, sql)
+    # Make sure we have saved these users to the database
+    for batch in utils.fetch_user_batches(session, identifiers, ids):
+        utils.save_users(db, batch)
+    # Ensure we have user IDs, not screen names
+    if ids:
+        follow = identifiers
+    else:
+        follow = utils.user_ids_for_screen_names(db, identifiers)
+    # Start streaming:
     for tweet in utils.stream_filter(session, follow=follow):
         if verbose:
             print(json.dumps(tweet, indent=2))

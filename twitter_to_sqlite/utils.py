@@ -385,3 +385,12 @@ def fix_streaming_tweet(tweet):
         fix_streaming_tweet(tweet["retweeted_status"])
     if "quoted_status" in tweet:
         fix_streaming_tweet(tweet["quoted_status"])
+
+
+def user_ids_for_screen_names(db, screen_names):
+    sql = "select id from users where lower(screen_name) in ({})".format(
+        ", ".join(["?"] * len(screen_names))
+    )
+    return [
+        r[0] for r in db.conn.execute(sql, [s.lower() for s in screen_names]).fetchall()
+    ]
