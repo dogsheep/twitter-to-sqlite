@@ -146,6 +146,54 @@ The filename (without the extension) will be used as the database alias within S
         --attach=foo:attendees.db \
         --sql="select Twitter from foo.attendees"
 
+## Capturing tweets in real-time with track and follow
+
+This functionality is **experimental**. Please [file bug reports](https://github.com/dogsheep/twitter-to-sqlite/issues) if you find any!
+
+Twitter provides a real-time API which can be used to subscribe to tweets as they happen. `twitter-to-sqlite` can use this API to continually update a SQLite database with tweets matching certain keywords, or referencing specific users.
+
+### track
+
+To track keywords, use the `track` command:
+
+    $ twitter-to-sqlite track tweets.db kakapo
+
+This command will continue to run until you hit Ctrl+C. It will capture any tweets mentioning the keyword [kakap](https://en.wikipedia.org/wiki/Kakapo) and store them in the `tweets.db` database file.
+
+You can pass multiple keywords as a space separated list. This will capture tweets matching either of those keywords.
+
+    $ twitter-to-sqlite track tweets.db kakapo raccoon
+
+You can enclose phrases in quotes to search for tweets matching both of those keywords:
+
+    $ twitter-to-sqlite track tweets.db 'trash panda'
+
+See [the Twitter track documentation](https://developer.twitter.com/en/docs/tweets/filter-realtime/guides/basic-stream-parameters#track) for advanced tips on using this command.
+
+Add the `--verbose` option to see matching tweets (in their verbose JSON form) displayed to the terminal as they are captured:
+
+    $ twitter-to-sqlite track tweets.db raccoon --verbose
+
+### follow
+
+The `follow` command will capture all tweets that are relevant to one or more specific Twitter users.
+
+    $ twitter-to-sqlite follow tweets.db nytimes
+
+This includes tweets by those users, tweets that reply to or quote those users and retweets by that user. See [the Twitter follow documentation](https://developer.twitter.com/en/docs/tweets/filter-realtime/guides/basic-stream-parameters#follow) for full details.
+
+This command accepts one or more screen names.
+
+You can feed it numeric Twitter user IDs instead of screen names by using the `--ids` flag.
+
+The command also supports the `--sql` and `--attach` options, and the `--verbose` option for displaying tweets as they are captured.
+
+Here's how to start following tweets from every user ID currently represented as being followed in the `following` table (populated using the `friends-ids` command):
+
+    $ twitter-to-sqlite follow tweets.db \
+        --sql="select distinct followed_id from following" \
+        --ids
+
 ## Design notes
 
 * Tweet IDs are stored as integers, to afford sorting by ID in a sensible way

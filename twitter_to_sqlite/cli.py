@@ -363,7 +363,7 @@ def track(db_path, track, auth, verbose):
 )
 @click.option("--verbose", is_flag=True, help="Verbose mode: display every tweet")
 def follow(db_path, identifiers, attach, sql, ids, auth, verbose):
-    "Experimental: Follow these Twitter users (numeric user IDs required) and save tweets in real-time"
+    "Experimental: Follow these Twitter users and save tweets in real-time"
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     db = sqlite_utils.Database(db_path)
