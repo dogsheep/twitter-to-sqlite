@@ -221,6 +221,50 @@ def users_lookup(db_path, identifiers, attach, sql, auth, ids):
         utils.save_users(db, batch)
 
 
+@cli.command(name="statuses-lookup")
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@add_identifier_options
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option(
+    "--skip-existing", is_flag=True, help="Skip tweets that are already in the DB"
+)
+@click.option("--silent", is_flag=True, help="Disable progress bar")
+def statuses_lookup(db_path, identifiers, attach, sql, auth, skip_existing, silent):
+    "Fetch tweets by their IDs"
+    auth = json.load(open(auth))
+    session = utils.session_for_auth(auth)
+    db = sqlite_utils.Database(db_path)
+    identifiers = utils.resolve_identifiers(db, identifiers, attach, sql)
+    if skip_existing:
+        existing_ids = set(
+            r[0] for r in db.conn.execute("select id from tweets").fetchall()
+        )
+        identifiers = [i for i in identifiers if int(i) not in existing_ids]
+    if silent:
+        for batch in utils.fetch_status_batches(session, identifiers):
+            utils.save_tweets(db, batch)
+    else:
+        # Do it with a progress bar
+        count = len(identifiers)
+        with click.progressbar(
+            length=count,
+            label="Importing {:,} tweet{}".format(count, "" if count == 1 else "s"),
+        ) as bar:
+            for batch in utils.fetch_status_batches(session, identifiers):
+                utils.save_tweets(db, batch)
+                bar.update(len(batch))
+
+
 @cli.command(name="list-members")
 @click.argument(
     "db_path",

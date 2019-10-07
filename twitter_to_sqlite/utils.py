@@ -255,6 +255,25 @@ def fetch_user_batches(session, ids_or_screen_names, use_ids=False, sleep=1):
         time.sleep(sleep)
 
 
+def fetch_status_batches(session, tweet_ids, sleep=1):
+    # Yields lists of up to 100 tweets
+    batches = []
+    batch = []
+    for id in tweet_ids:
+        batch.append(id)
+        if len(batch) == 100:
+            batches.append(batch)
+            batch = []
+    if batch:
+        batches.append(batch)
+    url = "https://api.twitter.com/1.1/statuses/lookup.json"
+    for batch in batches:
+        args = {"id": ",".join(map(str, batch)), "tweet_mode": "extended"}
+        tweets = session.get(url, params=args).json()
+        yield tweets
+        time.sleep(sleep)
+
+
 def resolve_identifiers(db, identifiers, attach, sql):
     if sql:
         if attach:

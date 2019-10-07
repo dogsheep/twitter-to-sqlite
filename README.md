@@ -59,9 +59,30 @@ If you have a list of Twitter screen names (or user IDs) you can bulk fetch thei
 
     $ twitter-to-sqlite users-lookup users.db simonw cleopaws
 
-You can pass user IDs instead usincg the `--ids` option:
+You can pass user IDs instead using the `--ids` option:
 
     $ twitter-to-sqlite users-lookup users.db 12497 3166449535 --ids
+
+This command also accepts `--sql` and `--attach` options, documented below.
+
+## Retrieve tweets in bulk
+
+If you have a list of tweet IDS you can bulk fetch them using the `statuses-lookup` command:
+
+    $ twitter-to-sqlite statuses-lookup tweets.db 1122154819815239680 1122154178493575169
+
+The `--sql` and `--attach` options are supported.
+
+Here's a recipe to retrieve any tweets that existing tweets are in-reply-to which have not yet been stored in your database:
+
+    $ twitter-to-sqlite statuses-lookup tweets.db \
+        --sql='
+            select in_reply_to_status_id
+            from tweets
+            where in_reply_to_status_id is not null' \
+        --skip-existing
+
+The `--skip-existing` option means that tweets that have already been stored in the database will not be fetched again.
 
 ## Retrieving Twitter followers
 
@@ -111,7 +132,7 @@ The underlying Twitter APIs have a rate limit of 15 requests every 15 minutes - 
 
 This option is available for some subcommands - run `twitter-to-sqlite command-name --help` to check.
 
-You can provide Twitter screen names (or user IDs) directly as command-line arguments, or you can provide those screen names or IDs by executing a SQL query.
+You can provide Twitter screen names (or user IDs or tweet IDs) directly as command-line arguments, or you can provide those screen names or IDs by executing a SQL query.
 
 For example: consider a SQLite database with an `attendees` table listing names and Twitter accounts - something like this:
 
