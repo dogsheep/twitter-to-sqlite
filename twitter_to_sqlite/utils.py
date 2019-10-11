@@ -40,7 +40,7 @@ def fetch_followers(session, cursor, user_id, screen_name):
     return r.headers, r.json()
 
 
-def get_profile(session, user_id, screen_name):
+def get_profile(session, user_id=None, screen_name=None):
     if not (user_id or screen_name):
         return session.get(
             "https://api.twitter.com/1.1/account/verify_credentials.json"
@@ -82,6 +82,15 @@ def fetch_user_timeline(session, user_id, screen_name, stop_after=None):
         args,
         sleep=1,
         stop_after=stop_after,
+    )
+
+
+def fetch_home_timeline(session):
+    yield from fetch_timeline(
+        session,
+        "https://api.twitter.com/1.1/statuses/home_timeline.json",
+        {},
+        sleep=1,
     )
 
 

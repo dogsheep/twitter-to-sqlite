@@ -198,6 +198,49 @@ def user_timeline(db_path, auth, stop_after, user_id, screen_name):
             utils.save_tweets(db, chunk)
 
 
+@cli.command(name="home-timeline")
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def home_timeline(db_path, auth):
+    "Save tweets from timeline for authenticated user"
+    auth = json.load(open(auth))
+    session = utils.session_for_auth(auth)
+    profile = utils.get_profile(session)
+    db = sqlite_utils.Database(db_path)
+    with click.progressbar(
+        utils.fetch_home_timeline(session),
+        length=800,
+        label="Importing timeline",
+        show_pos=True,
+    ) as bar:
+        # Save them 100 at a time
+        def save_chunk(db, chunk):
+            utils.save_tweets(db, chunk)
+            # Record who's timeline they came from
+            db["timeline_tweets"].upsert_all([{
+                "user": profile["id"],
+                "tweet": tweet["id"]
+            } for tweet in chunk], pk=("user", "tweet"), foreign_keys=("user", "tweet"))
+        chunk = []
+        for tweet in bar:
+            chunk.append(tweet)
+            if len(chunk) >= 100:
+                save_chunk(db, chunk)
+                chunk = []
+        if chunk:
+            save_chunk(db, chunk)
+
+
 @cli.command(name="users-lookup")
 @click.argument(
     "db_path",

@@ -128,6 +128,21 @@ Both of these commands also support `--sql` and `--attach` as an alternative to 
 
 The underlying Twitter APIs have a rate limit of 15 requests every 15 minutes - though they do return up to 5,000 IDs in each call. By default both of these subcommands will wait for 61 seconds between API calls in order to stay within the rate limit - you can adjust this behaviour down to just one second delay if you know you will not be making many calls using `--sleep=1`.
 
+## Retrieving tweets from your home timeline
+
+The `home-timeline` command retrieves up to 800 tweets from the home timeline of the authenticated user - generally this means tweets from people you follow.
+
+    $ twitter-to-sqlite home-timeline twitter.db
+    Importing timeline  [#################--------]  591/800  00:01:14
+
+The tweets are stored in the `tweets` table, and a record is added to the `timeline_tweets` table noting that this tweet came in due to being spotted in the timeline of your user.
+
+You can then view your timeline in Datasette using the following URL:
+
+`/tweets/tweets?_where=id+in+(select+tweet+from+[timeline_tweets])&_sort_desc=id&_facet=user`
+
+This will filter your tweets table to just tweets that appear in your timeline, ordered by most recent first and use faceting to show you which users are responsible for the most tweets.
+
 ## Providing input from a SQL query with --sql and --attach
 
 This option is available for some subcommands - run `twitter-to-sqlite command-name --help` to check.
