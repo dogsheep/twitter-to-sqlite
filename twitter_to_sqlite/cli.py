@@ -1,9 +1,11 @@
-import click
 import datetime
-import os
-import sqlite_utils
-import time
 import json
+import os
+import time
+
+import click
+import sqlite_utils
+from twitter_to_sqlite import archive
 from twitter_to_sqlite import utils
 
 
@@ -455,3 +457,35 @@ def _shared_friends_ids_followers_ids(
                 ignore=True,
             )
         time.sleep(sleep)
+
+
+@cli.command(name="import")
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument(
+    "archive_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False, exists=True),
+    required=True,
+)
+def import_(db_path, archive_path):
+    "Import data from a Twitter exported archive"
+    db = sqlite_utils.Database(db_path)
+    for filename, content in utils.read_archive_js(archive_path):
+        filename = filename[: -len(".js")]
+        if filename not in archive.transformers:
+            print("{}: not yet implemented".format(filename))
+            continue
+        transformer, pk = archive.transformers.get(filename)
+        data = archive.extract_json(content)
+        to_insert = transformer(data)
+        for table, rows in to_insert.items():
+            table_name = "archive-{}".format(table)
+            if pk is not None:
+                db[table_name].upsert_all(rows, pk=pk)
+            else:
+                db[table_name].upsert_all(rows, hash_id="pk")
+            count = db[table_name].count
+            print("{}: {} item{}".format(table_name, count, "s" if count == 1 else ""))

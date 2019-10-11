@@ -1,8 +1,9 @@
-from twitter_to_sqlite import utils
-import pytest
-import pathlib
-import sqlite_utils
 import json
+import pathlib
+
+import pytest
+import sqlite_utils
+from twitter_to_sqlite import utils
 
 
 @pytest.fixture
