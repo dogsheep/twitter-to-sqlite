@@ -215,6 +215,22 @@ Here's how to start following tweets from every user ID currently represented as
         --sql="select distinct followed_id from following" \
         --ids
 
+## Importing data from your Twitter archive
+
+You can request an archive of your Twitter data by [following these instructions](https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-archive).
+
+Twitter will send you a link to download a `.zip` file. You can import the contents of that file into a set of tables (each beginning with the `archive-` prefix) using the `import` command:
+
+    $ twitter-to-sqlite import archive.db ~/Downloads/twitter-2019-06-25-b31f2.zip
+
+This command does not populate any of the regular tables, since Twitter's export data does not exactly match the schema returned by the Twitter API.
+
+You may want to use other commands to populate tables based on data from the archive. For example, to retrieve full API versions of each of the tweets you have favourited in your archive, you could run the following:
+
+    $ twitter-to-sqlite statuses-lookup archive.db \
+        --sql='select tweetId from [archive-like]' \
+        --skip-existing
+
 ## Design notes
 
 * Tweet IDs are stored as integers, to afford sorting by ID in a sensible way
