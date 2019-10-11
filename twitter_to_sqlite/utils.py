@@ -1,10 +1,12 @@
-from requests_oauthlib import OAuth1Session
-from dateutil import parser
 import datetime
-import time
-import pathlib
 import json
+import pathlib
+import time
 import urllib.parse
+import zipfile
+
+from dateutil import parser
+from requests_oauthlib import OAuth1Session
 
 
 def session_for_auth(auth):
@@ -413,3 +415,11 @@ def user_ids_for_screen_names(db, screen_names):
     return [
         r[0] for r in db.conn.execute(sql, [s.lower() for s in screen_names]).fetchall()
     ]
+
+
+def read_archive_js(filepath):
+    "Open zip file, return (filename, content) for all .js"
+    zf = zipfile.ZipFile(filepath)
+    for zi in zf.filelist:
+        if zi.filename.endswith(".js"):
+            yield zi.filename, zf.open(zi.filename).read()
