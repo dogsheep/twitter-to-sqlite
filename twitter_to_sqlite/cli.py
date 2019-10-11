@@ -473,6 +473,10 @@ def _shared_friends_ids_followers_ids(
 def import_(db_path, archive_path):
     "Import data from a Twitter exported archive"
     db = sqlite_utils.Database(db_path)
+    # Drop archive-* tables that already exist
+    for table in db.tables:
+        if table.name.startswith("archive-"):
+            table.drop()
     for filename, content in utils.read_archive_js(archive_path):
         filename = filename[: -len(".js")]
         if filename not in archive.transformers:

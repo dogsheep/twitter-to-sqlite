@@ -8,13 +8,19 @@ from twitter_to_sqlite import cli
 from .utils import create_zip
 
 
-def test_cli_import(tmpdir):
+@pytest.fixture
+def import_test_dir(tmpdir):
     archive = str(tmpdir / "archive.zip")
-    output = str(tmpdir / "output.db")
     buf = io.BytesIO()
     zf = create_zip(buf)
     zf.close()
     open(archive, "wb").write(buf.getbuffer())
+    return tmpdir, archive
+
+
+def test_cli_import(import_test_dir):
+    tmpdir, archive = import_test_dir
+    output = str(tmpdir / "output.db")
     result = CliRunner().invoke(cli.cli, ["import", output, archive])
     assert 0 == result.exit_code, result.stderr
     db = sqlite_utils.Database(output)
@@ -36,7 +42,6 @@ def test_cli_import(tmpdir):
         {"savedSearchId": "42214", "query": "simonw"},
         {"savedSearchId": "55814", "query": "django"},
     ] == list(db["archive-saved-search"].rows)
-    dd = list(db["archive-account"].rows)
     assert [
         {
             "pk": "c4e32e91742df2331ef3ad1e481d1a64d781183a",
@@ -48,4 +53,16 @@ def test_cli_import(tmpdir):
             "createdAt": "2006-11-15T13:18:50.000Z",
             "accountDisplayName": "Simon Willison",
         }
-    ] == dd
+    ] == list(db["archive-account"].rows)
+
+
+def test_deletes_existing_archive_tables(import_test_dir):
+    tmpdir, archive = import_test_dir
+    output = str(tmpdir / "output.db")
+    db = sqlite_utils.Database(output)
+    # Create a table
+    db["archive-foo"].create({"id": int})
+    assert ["archive-foo"] == db.table_names()
+    result = CliRunner().invoke(cli.cli, ["import", output, archive])
+    # That table should have been deleted
+    assert "archive-foo" not in db.table_names()

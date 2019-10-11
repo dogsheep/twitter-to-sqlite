@@ -219,11 +219,13 @@ Here's how to start following tweets from every user ID currently represented as
 
 You can request an archive of your Twitter data by [following these instructions](https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-archive).
 
-Twitter will send you a link to download a `.zip` file. You can import the contents of that file into a set of tables (each beginning with the `archive-` prefix) using the `import` command:
+Twitter will send you a link to download a `.zip` file. You can import the contents of that file into a set of tables in a new database file called `archive.db` (each table beginning with the `archive-` prefix) using the `import` command:
 
     $ twitter-to-sqlite import archive.db ~/Downloads/twitter-2019-06-25-b31f2.zip
 
 This command does not populate any of the regular tables, since Twitter's export data does not exactly match the schema returned by the Twitter API.
+
+It will delete and recreate all of your `archive-*` tables every time you run it. If this is not what you want, run the command against a new SQLite database file name rather than running it against one that already exists.
 
 You may want to use other commands to populate tables based on data from the archive. For example, to retrieve full API versions of each of the tweets you have favourited in your archive, you could run the following:
 
