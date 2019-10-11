@@ -25,23 +25,23 @@ def test_cli_import(import_test_dir):
     assert 0 == result.exit_code, result.stderr
     db = sqlite_utils.Database(output)
     assert {
-        "archive-follower",
-        "archive-saved-search",
-        "archive-account",
-        "archive-following",
+        "archive_follower",
+        "archive_saved_search",
+        "archive_account",
+        "archive_following",
     } == set(db.table_names())
 
     assert [{"accountId": "73747798"}, {"accountId": "386025404"}] == list(
-        db["archive-follower"].rows
+        db["archive_follower"].rows
     )
     assert [{"accountId": "547842573"}, {"accountId": "12158"}] == list(
-        db["archive-following"].rows
+        db["archive_following"].rows
     )
 
     assert [
         {"savedSearchId": "42214", "query": "simonw"},
         {"savedSearchId": "55814", "query": "django"},
-    ] == list(db["archive-saved-search"].rows)
+    ] == list(db["archive_saved_search"].rows)
     assert [
         {
             "pk": "c4e32e91742df2331ef3ad1e481d1a64d781183a",
@@ -53,7 +53,7 @@ def test_cli_import(import_test_dir):
             "createdAt": "2006-11-15T13:18:50.000Z",
             "accountDisplayName": "Simon Willison",
         }
-    ] == list(db["archive-account"].rows)
+    ] == list(db["archive_account"].rows)
 
 
 def test_deletes_existing_archive_tables(import_test_dir):
@@ -61,8 +61,8 @@ def test_deletes_existing_archive_tables(import_test_dir):
     output = str(tmpdir / "output.db")
     db = sqlite_utils.Database(output)
     # Create a table
-    db["archive-foo"].create({"id": int})
-    assert ["archive-foo"] == db.table_names()
+    db["archive_foo"].create({"id": int})
+    assert ["archive_foo"] == db.table_names()
     result = CliRunner().invoke(cli.cli, ["import", output, archive])
     # That table should have been deleted
-    assert "archive-foo" not in db.table_names()
+    assert "archive_foo" not in db.table_names()

@@ -518,7 +518,7 @@ def import_(db_path, archive_path):
     db = sqlite_utils.Database(db_path)
     # Drop archive-* tables that already exist
     for table in db.tables:
-        if table.name.startswith("archive-"):
+        if table.name.startswith("archive_"):
             table.drop()
     for filename, content in utils.read_archive_js(archive_path):
         filename = filename[: -len(".js")]
@@ -529,7 +529,7 @@ def import_(db_path, archive_path):
         data = archive.extract_json(content)
         to_insert = transformer(data)
         for table, rows in to_insert.items():
-            table_name = "archive-{}".format(table)
+            table_name = "archive_{}".format(table.replace("-", "_"))
             if pk is not None:
                 db[table_name].upsert_all(rows, pk=pk)
             else:
