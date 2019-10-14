@@ -87,10 +87,7 @@ def fetch_user_timeline(session, user_id, screen_name, stop_after=None):
 
 def fetch_home_timeline(session):
     yield from fetch_timeline(
-        session,
-        "https://api.twitter.com/1.1/statuses/home_timeline.json",
-        {},
-        sleep=1,
+        session, "https://api.twitter.com/1.1/statuses/home_timeline.json", {}, sleep=1
     )
 
 
@@ -194,7 +191,7 @@ def ensure_tables(db):
         )
 
 
-def save_tweets(db, tweets):
+def save_tweets(db, tweets, favorited_by=None):
     ensure_tables(db)
     for tweet in tweets:
         transform_tweet(tweet)
@@ -216,6 +213,12 @@ def save_tweets(db, tweets):
             save_tweets(db, nested)
         db["users"].upsert(user, pk="id", alter=True)
         table = db["tweets"].upsert(tweet, pk="id", alter=True)
+        if favorited_by is not None:
+            db["favorited_by"].upsert(
+                {"tweet": tweet["id"], "user": favorited_by},
+                pk=("user", "tweet"),
+                foreign_keys=("tweet", "user"),
+            )
         if extended_entities and extended_entities.get("media"):
             for media in extended_entities["media"]:
                 # TODO: Remove this line when .m2m() grows alter=True
