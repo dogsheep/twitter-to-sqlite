@@ -1,4 +1,5 @@
 import datetime
+import html
 import json
 import pathlib
 import time
@@ -134,7 +135,7 @@ def transform_user(user):
 
 
 def transform_tweet(tweet):
-    tweet["full_text"] = expand_entities(tweet["full_text"], tweet.pop("entities"))
+    tweet["full_text"] = html.unescape(expand_entities(tweet["full_text"], tweet.pop("entities")))
     to_remove = [k for k in tweet if k.endswith("_str")] + [
         "quoted_status_id",
         "quoted_status_permalink",
