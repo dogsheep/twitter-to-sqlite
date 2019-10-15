@@ -92,12 +92,12 @@ def fetch_home_timeline(session):
     )
 
 
-def fetch_favorites(session, user_id, screen_name):
+def fetch_favorites(session, user_id, screen_name, stop_after=None):
     args = user_args(user_id, screen_name)
     # Rate limit 75/15 mins = 5/minute = every 12 seconds
     sleep = 12
     yield from fetch_timeline(
-        session, "https://api.twitter.com/1.1/favorites/list.json", args, sleep=sleep
+        session, "https://api.twitter.com/1.1/favorites/list.json", args, sleep=sleep, stop_after=stop_after
     )
 
 

@@ -146,14 +146,15 @@ def followers(db_path, auth, user_id, screen_name, silent):
 )
 @click.option("--user_id", help="Numeric user ID")
 @click.option("--screen_name", help="Screen name")
-def favorites(db_path, auth, user_id, screen_name):
+@click.option("--stop_after", type=int, help="Stop after this many")
+def favorites(db_path, auth, user_id, screen_name, stop_after):
     "Save tweets favorited by specified user"
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     profile = utils.get_profile(session, user_id, screen_name)
     db = sqlite_utils.Database(db_path)
     with click.progressbar(
-        utils.fetch_favorites(session, user_id, screen_name),
+        utils.fetch_favorites(session, user_id, screen_name, stop_after),
         label="Importing favorites",
         show_pos=True,
     ) as bar:
