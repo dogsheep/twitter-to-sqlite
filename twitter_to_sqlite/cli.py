@@ -214,15 +214,36 @@ def user_timeline(db_path, auth, stop_after, user_id, screen_name):
     default="auth.json",
     help="Path to auth.json token file",
 )
-def home_timeline(db_path, auth):
+@click.option(
+    "--since",
+    is_flag=True,
+    default=False,
+    help="Pull tweets since last retrieved tweet",
+)
+@click.option(
+    "--since_id", type=str, default=False, help="Pull tweets since this Tweet ID"
+)
+def home_timeline(db_path, auth, since, since_id):
     "Save tweets from timeline for authenticated user"
+    if since and since_id:
+        raise click.ClickException("Use either --since or --since_id, not both  ")
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     profile = utils.get_profile(session)
     db = sqlite_utils.Database(db_path)
+    expected_length = 800
+    if since:
+        # Set since_id to highest value for this timeline
+        try:
+            since_id = db.conn.execute(
+                "select max(tweet) from timeline_tweets where user = ?", [profile["id"]]
+            ).fetchall()[0][0]
+            expected_length = None
+        except IndexError:
+            pass
     with click.progressbar(
-        utils.fetch_home_timeline(session),
-        length=800,
+        utils.fetch_home_timeline(session, since_id=since_id),
+        length=expected_length,
         label="Importing timeline",
         show_pos=True,
     ) as bar:

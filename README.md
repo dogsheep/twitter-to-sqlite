@@ -137,6 +137,8 @@ The `home-timeline` command retrieves up to 800 tweets from the home timeline of
 
 The tweets are stored in the `tweets` table, and a record is added to the `timeline_tweets` table noting that this tweet came in due to being spotted in the timeline of your user.
 
+You can use `--since` to retrieve just tweets that have been posted since the last time this command was run, or `--since_id=xxx` to explicitly pass in a tweet ID to use as the last position.
+
 You can then view your timeline in Datasette using the following URL:
 
 `/tweets/tweets?_where=id+in+(select+tweet+from+[timeline_tweets])&_sort_desc=id&_facet=user`

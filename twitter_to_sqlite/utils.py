@@ -9,6 +9,9 @@ import zipfile
 from dateutil import parser
 from requests_oauthlib import OAuth1Session
 
+# Twitter API error codes
+RATE_LIMIT_ERROR_CODE = 88
+
 
 def session_for_auth(auth):
     return OAuth1Session(
@@ -61,10 +64,26 @@ def fetch_timeline(session, url, args, sleep=1, stop_after=None):
         args["count"] = stop_after
     args["tweet_mode"] = "extended"
     min_seen_id = None
+    num_rate_limit_errors = 0
     while True:
         if min_seen_id is not None:
             args["max_id"] = min_seen_id - 1
-        tweets = session.get(url, params=args).json()
+        response = session.get(url, params=args)
+        tweets = response.json()
+        if "errors" in tweets:
+            # Was it a rate limit error? If so sleep and try again
+            if RATE_LIMIT_ERROR_CODE == tweets["errors"][0]["code"]:
+                num_rate_limit_errors += 1
+                assert num_rate_limit_errors < 5, "More than 5 rate limit errors"
+                print(
+                    "Rate limit exceeded - will sleep 15s and try again {}".format(
+                        repr(response.headers)
+                    )
+                )
+                time.sleep(15)
+                continue
+            else:
+                raise Exception(str(tweets["errors"]))
         if not tweets:
             break
         for tweet in tweets:
@@ -86,9 +105,15 @@ def fetch_user_timeline(session, user_id, screen_name, stop_after=None):
     )
 
 
-def fetch_home_timeline(session):
+def fetch_home_timeline(session, since_id=None):
+    args = {}
+    if since_id is not None:
+        args["since_id"] = since_id
     yield from fetch_timeline(
-        session, "https://api.twitter.com/1.1/statuses/home_timeline.json", {}, sleep=1
+        session,
+        "https://api.twitter.com/1.1/statuses/home_timeline.json",
+        args,
+        sleep=1,
     )
 
 
