@@ -53,6 +53,8 @@ To load tweets for another user, use `--screen_name`:
 
 Twitter's API only returns up to around 3,200 tweets for most user accounts, but you may find that it returns all available tweets for your own user account.
 
+You can use `--since` to retrieve every tweet since the last time you imported for that user, or `--since_id=xxx` to retrieve every tweet since a specific tweet ID.
+
 ## Retrieve accounts in bulk
 
 If you have a list of Twitter screen names (or user IDs) you can bulk fetch their fully inflated Twitter profiles using the `users-lookup` command:

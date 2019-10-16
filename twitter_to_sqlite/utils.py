@@ -94,8 +94,10 @@ def fetch_timeline(session, url, args, sleep=1, stop_after=None):
         time.sleep(sleep)
 
 
-def fetch_user_timeline(session, user_id, screen_name, stop_after=None):
+def fetch_user_timeline(session, user_id, screen_name, stop_after=None, since_id=None):
     args = user_args(user_id, screen_name)
+    if since_id:
+        args["since_id"] = since_id
     yield from fetch_timeline(
         session,
         "https://api.twitter.com/1.1/statuses/user_timeline.json",
