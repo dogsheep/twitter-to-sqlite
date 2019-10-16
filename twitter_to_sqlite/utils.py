@@ -97,7 +97,11 @@ def fetch_favorites(session, user_id, screen_name, stop_after=None):
     # Rate limit 75/15 mins = 5/minute = every 12 seconds
     sleep = 12
     yield from fetch_timeline(
-        session, "https://api.twitter.com/1.1/favorites/list.json", args, sleep=sleep, stop_after=stop_after
+        session,
+        "https://api.twitter.com/1.1/favorites/list.json",
+        args,
+        sleep=sleep,
+        stop_after=stop_after,
     )
 
 
@@ -135,7 +139,9 @@ def transform_user(user):
 
 
 def transform_tweet(tweet):
-    tweet["full_text"] = html.unescape(expand_entities(tweet["full_text"], tweet.pop("entities")))
+    tweet["full_text"] = html.unescape(
+        expand_entities(tweet["full_text"], tweet.pop("entities"))
+    )
     to_remove = [k for k in tweet if k.endswith("_str")] + [
         "quoted_status_id",
         "quoted_status_permalink",

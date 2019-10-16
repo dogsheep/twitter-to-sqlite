@@ -201,3 +201,24 @@ def _list_from_common(data):
             bits = url.split("/")
             lists.append({"screen_name": bits[-3], "list_slug": bits[-1]})
     return lists
+
+
+def import_from_file(db, filename, content):
+    assert filename.endswith(".js"), "{} does not end with .js".format(filename)
+    existing_tables = set(db.table_names())
+    filename = filename[: -len(".js")]
+    if filename not in transformers:
+        print("{}: not yet implemented".format(filename))
+        return
+    transformer, pk = transformers.get(filename)
+    data = extract_json(content)
+    to_insert = transformer(data)
+    for table, rows in to_insert.items():
+        table_name = "archive_{}".format(table.replace("-", "_"))
+        # Drop and re-create if it already exists
+        if table_name in existing_tables:
+            db[table_name].drop()
+        if pk is not None:
+            db[table_name].upsert_all(rows, pk=pk)
+        else:
+            db[table_name].upsert_all(rows, hash_id="pk")

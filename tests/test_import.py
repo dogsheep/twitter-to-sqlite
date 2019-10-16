@@ -1,4 +1,5 @@
 import io
+import pathlib
 
 import pytest
 import sqlite_utils
@@ -9,21 +10,62 @@ from .utils import create_zip
 
 
 @pytest.fixture
-def import_test_dir(tmpdir):
+def zip_contents_path():
+    return pathlib.Path(__file__).parent / "zip_contents"
+
+
+@pytest.fixture
+def import_test_zip(tmpdir, zip_contents_path):
     archive = str(tmpdir / "archive.zip")
     buf = io.BytesIO()
-    zf = create_zip(buf)
+    zf = create_zip(zip_contents_path, buf)
     zf.close()
     open(archive, "wb").write(buf.getbuffer())
     return tmpdir, archive
 
 
-def test_cli_import(import_test_dir):
-    tmpdir, archive = import_test_dir
+def test_create_zip(zip_contents_path):
+    zf = create_zip(zip_contents_path)
+    assert {"account.js", "saved-search.js", "following.js", "follower.js"} == {
+        f.filename for f in zf.filelist
+    }
+
+
+def test_cli_import_zip_file(import_test_zip):
+    tmpdir, archive = import_test_zip
     output = str(tmpdir / "output.db")
     result = CliRunner().invoke(cli.cli, ["import", output, archive])
-    assert 0 == result.exit_code, result.stderr
+    assert 0 == result.exit_code, result.stdout
     db = sqlite_utils.Database(output)
+    assert_imported_db(db)
+
+
+def test_cli_import_folder(tmpdir, zip_contents_path):
+    output = str(tmpdir / "output.db")
+    result = CliRunner().invoke(cli.cli, ["import", output, str(zip_contents_path)])
+    assert 0 == result.exit_code, result.stdout
+    db = sqlite_utils.Database(output)
+    assert_imported_db(db)
+
+
+def test_cli_import_specific_files(tmpdir, zip_contents_path):
+    output = str(tmpdir / "output.db")
+    result = CliRunner().invoke(
+        cli.cli,
+        [
+            "import",
+            output,
+            str(zip_contents_path / "follower.js"),
+            str(zip_contents_path / "following.js"),
+        ],
+    )
+    assert 0 == result.exit_code, result.stdout
+    db = sqlite_utils.Database(output)
+    # Should just have two tables
+    assert ["archive_follower", "archive_following"] == db.table_names()
+
+
+def assert_imported_db(db):
     assert {
         "archive_follower",
         "archive_saved_search",
@@ -56,13 +98,24 @@ def test_cli_import(import_test_dir):
     ] == list(db["archive_account"].rows)
 
 
-def test_deletes_existing_archive_tables(import_test_dir):
-    tmpdir, archive = import_test_dir
+def test_deletes_existing_archive_tables(import_test_zip):
+    tmpdir, archive = import_test_zip
     output = str(tmpdir / "output.db")
     db = sqlite_utils.Database(output)
     # Create a table
-    db["archive_foo"].create({"id": int})
-    assert ["archive_foo"] == db.table_names()
-    result = CliRunner().invoke(cli.cli, ["import", output, archive])
-    # That table should have been deleted
-    assert "archive_foo" not in db.table_names()
+    db["archive_follower"].create({"id": int})
+    db["archive_follower"].insert({"id": 1})
+    assert ["archive_follower"] == db.table_names()
+    assert [{"id": 1}] == list(db["archive_follower"].rows)
+    assert (
+        "CREATE TABLE [archive_follower] (\n   [id] INTEGER\n)"
+        == db["archive_follower"].schema
+    )
+    # Running the import should wipe and recreate that table
+    CliRunner().invoke(cli.cli, ["import", output, archive])
+    # That table should have been deleted and recreated
+    assert (
+        "CREATE TABLE [archive_follower] (\n   [accountId] TEXT PRIMARY KEY\n)"
+        == db["archive_follower"].schema
+    )
+    assert 2 == db["archive_follower"].count

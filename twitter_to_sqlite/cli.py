@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import pathlib
 import time
 
 import click
@@ -509,34 +510,31 @@ def _shared_friends_ids_followers_ids(
 @cli.command(name="import")
 @click.argument(
     "db_path",
-    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    type=click.Path(file_okay=True, dir_okay=True, allow_dash=False),
     required=True,
 )
 @click.argument(
-    "archive_path",
-    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False, exists=True),
+    "paths",
+    type=click.Path(file_okay=True, dir_okay=True, allow_dash=False, exists=True),
     required=True,
+    nargs=-1,
 )
-def import_(db_path, archive_path):
-    "Import data from a Twitter exported archive"
+def import_(db_path, paths):
+    """
+    Import data from a Twitter exported archive. Input can be the path to a zip
+    file, a directory full of .js files or one or more direct .js files.
+    """
     db = sqlite_utils.Database(db_path)
-    # Drop archive-* tables that already exist
-    for table in db.tables:
-        if table.name.startswith("archive_"):
-            table.drop()
-    for filename, content in utils.read_archive_js(archive_path):
-        filename = filename[: -len(".js")]
-        if filename not in archive.transformers:
-            print("{}: not yet implemented".format(filename))
-            continue
-        transformer, pk = archive.transformers.get(filename)
-        data = archive.extract_json(content)
-        to_insert = transformer(data)
-        for table, rows in to_insert.items():
-            table_name = "archive_{}".format(table.replace("-", "_"))
-            if pk is not None:
-                db[table_name].upsert_all(rows, pk=pk)
-            else:
-                db[table_name].upsert_all(rows, hash_id="pk")
-            count = db[table_name].count
-            print("{}: {} item{}".format(table_name, count, "s" if count == 1 else ""))
+    for filepath in paths:
+        path = pathlib.Path(filepath)
+        if path.suffix == ".zip":
+            for filename, content in utils.read_archive_js(filepath):
+                archive.import_from_file(db, filename, content)
+        elif path.is_dir():
+            # Import every .js file in this directory
+            for filepath in path.glob("*.js"):
+                archive.import_from_file(db, filepath.name, open(filepath, "rb").read())
+        elif path.suffix == ".js":
+            archive.import_from_file(db, path.name, open(path, "rb").read())
+        else:
+            raise click.ClickException("Path must be a .js or .zip file or a directory")

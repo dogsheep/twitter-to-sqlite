@@ -240,7 +240,17 @@ Twitter will send you a link to download a `.zip` file. You can import the conte
 
 This command does not populate any of the regular tables, since Twitter's export data does not exactly match the schema returned by the Twitter API.
 
-It will delete and recreate all of your `archive_*` tables every time you run it. If this is not what you want, run the command against a new SQLite database file name rather than running it against one that already exists.
+It will delete and recreate the corresponding `archive_*` tables every time you run it. If this is not what you want, run the command against a new SQLite database file name rather than running it against one that already exists.
+
+If you have already decompressed your archive, you can run this against the directory that you decompressed it to:
+
+    $ twitter-to-sqlite import archive.db ~/Downloads/twitter-2019-06-25-b31f2/
+
+You can also run it against one or more specific files within that folder. For example, to import just the follower.js and following.js files:
+
+    $ twitter-to-sqlite import archive.db \
+        ~/Downloads/twitter-2019-06-25-b31f2/follower.js \
+        ~/Downloads/twitter-2019-06-25-b31f2/following.js
 
 You may want to use other commands to populate tables based on data from the archive. For example, to retrieve full API versions of each of the tweets you have favourited in your archive, you could run the following:
 
