@@ -109,7 +109,7 @@ def fetch_user_timeline(session, user_id, screen_name, stop_after=None, since_id
 
 def fetch_home_timeline(session, since_id=None):
     args = {}
-    if since_id is not None:
+    if since_id:
         args["since_id"] = since_id
     yield from fetch_timeline(
         session,

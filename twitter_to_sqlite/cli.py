@@ -200,12 +200,11 @@ def user_timeline(db_path, auth, stop_after, user_id, screen_name, since, since_
     if since or since_id:
         expected_length = None
 
-    if since:
+    if since and db["tweets"].exists:
         try:
             since_id = db.conn.execute(
                 "select max(id) from tweets where user = ?", [profile["id"]]
             ).fetchall()[0][0]
-            print("since = ", since_id)
         except IndexError:
             pass
 
@@ -257,7 +256,7 @@ def home_timeline(db_path, auth, since, since_id):
     profile = utils.get_profile(session)
     db = sqlite_utils.Database(db_path)
     expected_length = 800
-    if since:
+    if since and db["timeline_tweets"].exists:
         # Set since_id to highest value for this timeline
         try:
             since_id = db.conn.execute(
