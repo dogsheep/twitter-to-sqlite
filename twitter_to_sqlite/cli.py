@@ -107,7 +107,7 @@ def followers(db_path, auth, user_id, screen_name, silent):
     # Get the follower count, so we can have a progress bar
     count = 0
 
-    profile = utils.get_profile(session, user_id, screen_name)
+    profile = utils.get_profile(db, session, user_id, screen_name)
     screen_name = profile["screen_name"]
     user_id = profile["id"]
 
@@ -152,8 +152,8 @@ def favorites(db_path, auth, user_id, screen_name, stop_after):
     "Save tweets favorited by specified user"
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
-    profile = utils.get_profile(session, user_id, screen_name)
-    db = utils.open_database(db_path)
+    db = sqlite_utils.Database(db_path)
+    profile = utils.get_profile(db, session, user_id, screen_name)
     with click.progressbar(
         utils.fetch_favorites(session, user_id, screen_name, stop_after),
         label="Importing favorites",
@@ -193,8 +193,8 @@ def user_timeline(db_path, auth, stop_after, user_id, screen_name, since, since_
         raise click.ClickException("Use either --since or --since_id, not both")
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
-    profile = utils.get_profile(session, user_id, screen_name)
-    db = utils.open_database(db_path)
+    db = sqlite_utils.Database(db_path)
+    profile = utils.get_profile(db, session, user_id, screen_name)
     expected_length = profile["statuses_count"]
 
     if since or since_id:
@@ -255,8 +255,8 @@ def home_timeline(db_path, auth, since, since_id):
         raise click.ClickException("Use either --since or --since_id, not both")
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
-    profile = utils.get_profile(session)
-    db = utils.open_database(db_path)
+    db = sqlite_utils.Database(db_path)
+    profile = utils.get_profile(db, session)
     expected_length = 800
     if since and db["timeline_tweets"].exists:
         # Set since_id to highest value for this timeline
@@ -536,9 +536,8 @@ def _shared_friends_ids_followers_ids(
         # Make sure this user is saved
         arg_user_id = identifier if ids else None
         arg_screen_name = None if ids else identifier
-        profile = utils.get_profile(session, arg_user_id, arg_screen_name)
+        profile = utils.get_profile(db, session, arg_user_id, arg_screen_name)
         user_id = profile["id"]
-        utils.save_users(db, [profile])
         args = {("user_id" if ids else "screen_name"): identifier}
         for id_batch in utils.cursor_paginate(
             session, api_url, args, "ids", 5000, sleep

@@ -74,16 +74,19 @@ def fetch_followers(session, cursor, user_id, screen_name):
     return r.headers, r.json()
 
 
-def get_profile(session, user_id=None, screen_name=None):
+def get_profile(db, session, user_id=None, screen_name=None):
     if not (user_id or screen_name):
-        return session.get(
+        profile = session.get(
             "https://api.twitter.com/1.1/account/verify_credentials.json"
         ).json()
-    args = user_args(user_id, screen_name)
-    url = "https://api.twitter.com/1.1/users/show.json"
-    if args:
-        url += "?" + urllib.parse.urlencode(args)
-    return session.get(url).json()
+    else:
+        args = user_args(user_id, screen_name)
+        url = "https://api.twitter.com/1.1/users/show.json"
+        if args:
+            url += "?" + urllib.parse.urlencode(args)
+        profile = session.get(url).json()
+    save_users(db, [profile])
+    return profile
 
 
 def fetch_timeline(session, url, args, sleep=1, stop_after=None):
