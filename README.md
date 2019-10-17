@@ -262,6 +262,21 @@ You may want to use other commands to populate tables based on data from the arc
         --sql='select tweetId from archive_like' \
         --skip-existing
 
+If you want these imported tweets to then be reflected in the `favorited_by` table, you can do so by applying the following SQL query:
+
+    $ sqlite3 archive.db
+    SQLite version 3.22.0 2018-01-22 18:45:57
+    Enter ".help" for usage hints.
+    sqlite> INSERT OR IGNORE INTO favorited_by (tweet, user)
+       ...>     SELECT tweetId, 'YOUR_TWITTER_ID' FROM archive_like;
+    <Ctrl+D>
+
+Replace YOUR_TWITTER_ID with your numeric Twitter ID. If you don't know that ID you can find it out by running the following:
+
+    $ twitter-to-sqlite fetch \
+        "https://api.twitter.com/1.1/account/verify_credentials.json" \
+        | grep '"id"' | head -n 1
+
 ## Design notes
 
 * Tweet IDs are stored as integers, to afford sorting by ID in a sensible way
