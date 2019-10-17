@@ -2,15 +2,45 @@ import datetime
 import html
 import json
 import pathlib
+import re
 import time
 import urllib.parse
 import zipfile
 
 from dateutil import parser
 from requests_oauthlib import OAuth1Session
+import sqlite_utils
 
 # Twitter API error codes
 RATE_LIMIT_ERROR_CODE = 88
+
+source_re = re.compile('<a href="(?P<url>.*?)".*?>(?P<name>.*?)</a>')
+
+
+def open_database(db_path):
+    db = sqlite_utils.Database(db_path)
+    # Only run migrations if this is an existing DB (has tables)
+    if db.tables:
+        migrate(db)
+    return db
+
+
+def migrate(db):
+    from twitter_to_sqlite.migrations import MIGRATIONS
+
+    if "migrations" not in db.table_names():
+        db["migrations"].create({"name": str, "applied": str}, pk="name")
+    applied_migrations = {
+        m[0] for m in db.conn.execute("select name from migrations").fetchall()
+    }
+    for migration in MIGRATIONS:
+        name = migration.__name__
+        if name in applied_migrations:
+            continue
+        migration(db)
+        db["migrations"].insert(
+            {"name": name, "applied": datetime.datetime.utcnow().isoformat()}
+        )
 
 
 def session_for_auth(auth):
@@ -183,6 +213,8 @@ def ensure_tables(db):
     table_names = set(db.table_names())
     if "places" not in table_names:
         db["places"].create({"id": str}, pk="id")
+    if "sources" not in table_names:
+        db["sources"].create({"id": str, "name": str, "url": str}, pk="id")
     if "users" not in table_names:
         db["users"].create(
             {
@@ -207,9 +239,14 @@ def ensure_tables(db):
                 "retweeted_status": int,
                 "quoted_status": int,
                 "place": str,
+                "source": str,
             },
             pk="id",
-            foreign_keys=(("user", "users", "id"), ("place", "places", "id")),
+            foreign_keys=(
+                ("user", "users", "id"),
+                ("place", "places", "id"),
+                ("source", "sources", "id"),
+            ),
         )
         db["tweets"].enable_fts(["full_text"], create_triggers=True)
         db["tweets"].add_foreign_key("retweeted_status", "tweets")
@@ -232,6 +269,7 @@ def save_tweets(db, tweets, favorited_by=None):
         user = tweet.pop("user")
         transform_user(user)
         tweet["user"] = user["id"]
+        tweet["source"] = extract_and_save_source(db, tweet["source"])
         if tweet.get("place"):
             db["places"].upsert(tweet["place"], pk="id", alter=True)
             tweet["place"] = tweet["place"]["id"]
@@ -469,3 +507,9 @@ def read_archive_js(filepath):
     for zi in zf.filelist:
         if zi.filename.endswith(".js"):
             yield zi.filename, zf.open(zi.filename).read()
+
+
+def extract_and_save_source(db, source):
+    m = source_re.match(source)
+    details = m.groupdict()
+    return db["sources"].upsert(details, hash_id="id").last_pk

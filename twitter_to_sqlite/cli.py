@@ -5,7 +5,7 @@ import pathlib
 import time
 
 import click
-import sqlite_utils
+
 from twitter_to_sqlite import archive
 from twitter_to_sqlite import utils
 
@@ -102,7 +102,7 @@ def followers(db_path, auth, user_id, screen_name, silent):
     "Save followers for specified user (defaults to authenticated user)"
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     fetched = []
     # Get the follower count, so we can have a progress bar
     count = 0
@@ -153,7 +153,7 @@ def favorites(db_path, auth, user_id, screen_name, stop_after):
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     profile = utils.get_profile(session, user_id, screen_name)
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     with click.progressbar(
         utils.fetch_favorites(session, user_id, screen_name, stop_after),
         label="Importing favorites",
@@ -194,7 +194,7 @@ def user_timeline(db_path, auth, stop_after, user_id, screen_name, since, since_
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     profile = utils.get_profile(session, user_id, screen_name)
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     expected_length = profile["statuses_count"]
 
     if since or since_id:
@@ -209,7 +209,9 @@ def user_timeline(db_path, auth, stop_after, user_id, screen_name, since, since_
             pass
 
     with click.progressbar(
-        utils.fetch_user_timeline(session, user_id, screen_name, stop_after, since_id=since_id),
+        utils.fetch_user_timeline(
+            session, user_id, screen_name, stop_after, since_id=since_id
+        ),
         length=expected_length,
         label="Importing tweets",
         show_pos=True,
@@ -254,7 +256,7 @@ def home_timeline(db_path, auth, since, since_id):
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     profile = utils.get_profile(session)
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     expected_length = 800
     if since and db["timeline_tweets"].exists:
         # Set since_id to highest value for this timeline
@@ -310,7 +312,7 @@ def users_lookup(db_path, identifiers, attach, sql, auth, ids):
     "Fetch user accounts"
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     identifiers = utils.resolve_identifiers(db, identifiers, attach, sql)
     for batch in utils.fetch_user_batches(session, identifiers, ids):
         utils.save_users(db, batch)
@@ -338,7 +340,7 @@ def statuses_lookup(db_path, identifiers, attach, sql, auth, skip_existing, sile
     "Fetch tweets by their IDs"
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     identifiers = utils.resolve_identifiers(db, identifiers, attach, sql)
     if skip_existing:
         existing_ids = set(
@@ -381,7 +383,7 @@ def list_members(db_path, identifiers, auth, ids):
     "Fetch lists - accepts one or more screen_name/list_slug identifiers"
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     for identifier in identifiers:
         utils.fetch_and_save_list(db, session, identifier, ids)
 
@@ -477,7 +479,7 @@ def track(db_path, track, auth, verbose):
     "Experimental: Save tweets matching these keywords in real-time"
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     for tweet in utils.stream_filter(session, track=track):
         if verbose:
             print(json.dumps(tweet, indent=2))
@@ -505,7 +507,7 @@ def follow(db_path, identifiers, attach, sql, ids, auth, verbose):
     "Experimental: Follow these Twitter users and save tweets in real-time"
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     identifiers = utils.resolve_identifiers(db, identifiers, attach, sql)
     # Make sure we have saved these users to the database
     for batch in utils.fetch_user_batches(session, identifiers, ids):
@@ -528,7 +530,7 @@ def _shared_friends_ids_followers_ids(
 ):
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     identifiers = utils.resolve_identifiers(db, identifiers, attach, sql)
     for identifier in identifiers:
         # Make sure this user is saved
@@ -569,7 +571,7 @@ def import_(db_path, paths):
     Import data from a Twitter exported archive. Input can be the path to a zip
     file, a directory full of .js files or one or more direct .js files.
     """
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     for filepath in paths:
         path = pathlib.Path(filepath)
         if path.suffix == ".zip":
