@@ -20,6 +20,7 @@ def db(tweets):
 
 def test_tables(db):
     assert {
+        "sources",
         "users_fts_idx",
         "users_fts_data",
         "tweets_fts",
@@ -182,9 +183,9 @@ def test_tweets(db):
             "retweeted_status": None,
             "quoted_status": None,
             "place": None,
+            "source": "e6528b505bcfd811fdd40ff2d46665dbccba2024",
             "truncated": 0,
             "display_text_range": "[0, 139]",
-            "source": '<a href="http://itunes.apple.com/us/app/twitter/id409789998?mt=12" rel="nofollow">Twitter for Mac</a>',
             "in_reply_to_status_id": None,
             "in_reply_to_user_id": None,
             "in_reply_to_screen_name": None,
@@ -207,9 +208,9 @@ def test_tweets(db):
             "retweeted_status": None,
             "quoted_status": 861696799362478100,
             "place": None,
+            "source": "1f89d6a41b1505a3071169f8d0d028ba9ad6f952",
             "truncated": 0,
             "display_text_range": "[0, 239]",
-            "source": '<a href="https://mobile.twitter.com" rel="nofollow">Twitter Web App</a>',
             "in_reply_to_status_id": None,
             "in_reply_to_user_id": None,
             "in_reply_to_screen_name": None,
@@ -232,9 +233,9 @@ def test_tweets(db):
             "retweeted_status": None,
             "quoted_status": None,
             "place": "01a9a39529b27f36",
+            "source": "95f3aaaddaa45937ac94765e0ddb68ba2be92d20",
             "truncated": 0,
             "display_text_range": "[45, 262]",
-            "source": '<a href="http://twitter.com/download/iphone" rel="nofollow">Twitter for iPhone</a>',
             "in_reply_to_status_id": "1169079390577320000",
             "in_reply_to_user_id": "82016165",
             "in_reply_to_screen_name": "scientiffic",
@@ -257,9 +258,9 @@ def test_tweets(db):
             "retweeted_status": None,
             "quoted_status": None,
             "place": None,
+            "source": "942cfc2bf9f290ddbe3d78f1907dc084a00ed23f",
             "truncated": 0,
             "display_text_range": "[0, 235]",
-            "source": '<a href="http://www.voxmedia.com" rel="nofollow">Vox Media</a>',
             "in_reply_to_status_id": None,
             "in_reply_to_user_id": None,
             "in_reply_to_screen_name": None,
@@ -282,9 +283,9 @@ def test_tweets(db):
             "retweeted_status": 1169242008432644000,
             "quoted_status": None,
             "place": None,
+            "source": "95f3aaaddaa45937ac94765e0ddb68ba2be92d20",
             "truncated": 0,
             "display_text_range": "[0, 143]",
-            "source": '<a href="http://twitter.com/download/iphone" rel="nofollow">Twitter for iPhone</a>',
             "in_reply_to_status_id": None,
             "in_reply_to_user_id": None,
             "in_reply_to_screen_name": None,
@@ -300,6 +301,32 @@ def test_tweets(db):
             "lang": "en",
         },
     ] == tweet_rows
+
+
+def test_sources(db):
+    source_rows = list(db["sources"].rows)
+    assert [
+        {
+            "id": "942cfc2bf9f290ddbe3d78f1907dc084a00ed23f",
+            "name": "Vox Media",
+            "url": "http://www.voxmedia.com",
+        },
+        {
+            "id": "95f3aaaddaa45937ac94765e0ddb68ba2be92d20",
+            "name": "Twitter for iPhone",
+            "url": "http://twitter.com/download/iphone",
+        },
+        {
+            "id": "1f89d6a41b1505a3071169f8d0d028ba9ad6f952",
+            "name": "Twitter Web App",
+            "url": "https://mobile.twitter.com",
+        },
+        {
+            "id": "e6528b505bcfd811fdd40ff2d46665dbccba2024",
+            "name": "Twitter for Mac",
+            "url": "http://itunes.apple.com/us/app/twitter/id409789998?mt=12",
+        },
+    ] == source_rows
 
 
 def test_places(db):
