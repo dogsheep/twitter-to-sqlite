@@ -584,3 +584,96 @@ def import_(db_path, paths):
             archive.import_from_file(db, path.name, open(path, "rb").read())
         else:
             raise click.ClickException("Path must be a .js or .zip file or a directory")
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("q")
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option(
+    "--geocode",
+    type=str,
+    help="latitude,longitude,radius - where radius is a number followed by mi or km",
+)
+@click.option("--lang", type=str, help="ISO 639-1 language code")
+@click.option("--locale", type=str, help="Locale: only 'ja' is currently effective")
+@click.option("--result_type", type=click.Choice(["mixed", "recent", "popular"]))
+@click.option("--count", type=int, default=100, help="Number of results per page")
+@click.option("--stop_after", type=int, help="Stop after this many")
+def search(db_path, q, auth, **kwargs):
+    """
+    Save tweets from a search. Full documentation here:
+
+    https://developer.twitter.com/en/docs/tweets/search/api-reference/get-search-tweets
+    """
+    stop_after = kwargs.pop("stop_after", None)
+    auth = json.load(open(auth))
+    session = utils.session_for_auth(auth)
+    db = utils.open_database(db_path)
+
+    search_args = {"q": q}
+    for key, value in kwargs.items():
+        if value is not None:
+            search_args[key] = value
+
+    tweets = utils.fetch_timeline(
+        session,
+        "https://api.twitter.com/1.1/search/tweets.json",
+        search_args,
+        sleep=6,
+        key="statuses",
+        stop_after=stop_after,
+    )
+    chunk = []
+    first = True
+
+    if not db["search_runs"].exists:
+        db["search_runs"].create(
+            {"id": int, "name": str, "args": str, "started": str}, pk="id"
+        )
+
+    def save_chunk(db, search_run_id, chunk):
+        utils.save_tweets(db, chunk)
+        # Record which search run produced them
+        db["search_runs_tweets"].upsert_all(
+            [{"search_run": search_run_id, "tweet": tweet["id"]} for tweet in chunk],
+            pk=("search_run", "tweet"),
+            foreign_keys=("search_run", "tweet"),
+        )
+
+    search_run_id = None
+    for tweet in tweets:
+        if first:
+            first = False
+            search_run_id = (
+                db["search_runs"]
+                .insert(
+                    {
+                        "name": search_args["q"],
+                        "args": {
+                            key: value
+                            for key, value in search_args.items()
+                            if key not in {"q", "count"}
+                        },
+                        "started": datetime.datetime.utcnow().isoformat(),
+                    },
+                    alter=True,
+                )
+                .last_pk
+            )
+        chunk.append(tweet)
+        if len(chunk) >= 10:
+            save_chunk(db, search_run_id, chunk)
+            chunk = []
+    if chunk:
+        save_chunk(db, search_run_id, chunk)

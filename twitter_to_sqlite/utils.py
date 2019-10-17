@@ -89,7 +89,7 @@ def get_profile(db, session, user_id=None, screen_name=None):
     return profile
 
 
-def fetch_timeline(session, url, args, sleep=1, stop_after=None):
+def fetch_timeline(session, url, args, sleep=1, stop_after=None, key=None):
     # See https://developer.twitter.com/en/docs/tweets/timelines/guides/working-with-timelines
     args = dict(args)
     args["count"] = 200
@@ -117,6 +117,8 @@ def fetch_timeline(session, url, args, sleep=1, stop_after=None):
                 continue
             else:
                 raise Exception(str(tweets["errors"]))
+        if key is not None:
+            tweets = tweets[key]
         if not tweets:
             break
         for tweet in tweets:
