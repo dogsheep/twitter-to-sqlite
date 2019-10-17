@@ -4,6 +4,7 @@ import sqlite_utils
 from twitter_to_sqlite import cli, migrations
 
 from .test_import import zip_contents_path
+from .test_save_tweets import db, tweets
 
 
 def test_no_migrations_on_first_run(tmpdir, zip_contents_path):
@@ -47,3 +48,8 @@ def test_convert_source_column():
         {"id": 2, "source": "000e4c4db71278018fb8c322f070d051e76885b1"},
         {"id": 3, "source": "d3c1d39c57fecfc09202f20ea5e2db30262029fd"},
     ] == list(db["tweets"].rows)
+
+
+def test_convert_source_column_against_real_database(db):
+    assert "migrations" not in db.table_names()
+    migrations.convert_source_column(db)

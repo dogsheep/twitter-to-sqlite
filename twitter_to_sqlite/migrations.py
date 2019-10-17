@@ -18,5 +18,11 @@ def convert_source_column(db):
         "select id, source from tweets where source like '<%'"
     ).fetchall():
         db["tweets"].update(id, {"source": extract_and_save_source(db, source)})
-    db["tweets"].create_index(["source"])
-    db["tweets"].add_foreign_key("source")
+    try:
+        db["tweets"].create_index(["source"])
+    except Exception:
+        pass
+    try:
+        db["tweets"].add_foreign_key("source")
+    except Exception:
+        pass
