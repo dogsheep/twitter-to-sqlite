@@ -152,7 +152,7 @@ def favorites(db_path, auth, user_id, screen_name, stop_after):
     "Save tweets favorited by specified user"
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     profile = utils.get_profile(db, session, user_id, screen_name)
     with click.progressbar(
         utils.fetch_favorites(session, user_id, screen_name, stop_after),
@@ -193,7 +193,7 @@ def user_timeline(db_path, auth, stop_after, user_id, screen_name, since, since_
         raise click.ClickException("Use either --since or --since_id, not both")
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     profile = utils.get_profile(db, session, user_id, screen_name)
     expected_length = profile["statuses_count"]
 
@@ -255,7 +255,7 @@ def home_timeline(db_path, auth, since, since_id):
         raise click.ClickException("Use either --since or --since_id, not both")
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
-    db = sqlite_utils.Database(db_path)
+    db = utils.open_database(db_path)
     profile = utils.get_profile(db, session)
     expected_length = 800
     if since and db["timeline_tweets"].exists:
