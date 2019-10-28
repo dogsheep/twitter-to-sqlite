@@ -43,7 +43,7 @@ The `user-timeline` command retrieves all of the tweets posted by the specified 
     $ twitter-to-sqlite user-timeline twitter.db
     Importing tweets  [#####-------------------------------]  2799/17780  00:01:39
 
-It assumes there is an `auth.json` file in the current director. You can provide the path to your `auth.json` file using `-a`:
+All of these commands assume that there is an `auth.json` file in the current directory. You can provide the path to your `auth.json` file using `-a`:
 
     $ twitter-to-sqlite user-timeline twitter.db -a /path/to/auth.json
 
