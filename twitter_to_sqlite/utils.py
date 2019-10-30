@@ -89,12 +89,16 @@ def get_profile(db, session, user_id=None, screen_name=None):
     return profile
 
 
-def fetch_timeline(session, url, args, sleep=1, stop_after=None, key=None):
+def fetch_timeline(
+    session, url, args=None, sleep=1, stop_after=None, key=None, since_id=None
+):
     # See https://developer.twitter.com/en/docs/tweets/timelines/guides/working-with-timelines
-    args = dict(args)
+    args = dict(args or {})
     args["count"] = 200
     if stop_after is not None:
         args["count"] = stop_after
+    if since_id:
+        args["since_id"] = since_id
     args["tweet_mode"] = "extended"
     min_seen_id = None
     num_rate_limit_errors = 0
@@ -139,18 +143,6 @@ def fetch_user_timeline(session, user_id, screen_name, stop_after=None, since_id
         args,
         sleep=1,
         stop_after=stop_after,
-    )
-
-
-def fetch_home_timeline(session, since_id=None):
-    args = {}
-    if since_id:
-        args["since_id"] = since_id
-    yield from fetch_timeline(
-        session,
-        "https://api.twitter.com/1.1/statuses/home_timeline.json",
-        args,
-        sleep=1,
     )
 
 

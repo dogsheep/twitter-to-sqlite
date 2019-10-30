@@ -251,6 +251,52 @@ def user_timeline(db_path, auth, stop_after, user_id, screen_name, since, since_
 )
 def home_timeline(db_path, auth, since, since_id):
     "Save tweets from timeline for authenticated user"
+    _shared_timeline(
+        db_path,
+        auth,
+        since,
+        since_id,
+        table="timeline_tweets",
+        api_url="https://api.twitter.com/1.1/statuses/home_timeline.json",
+    )
+
+
+@cli.command(name="mentions-timeline")
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option(
+    "--since",
+    is_flag=True,
+    default=False,
+    help="Pull tweets since last retrieved mention",
+)
+@click.option(
+    "--since_id", type=str, default=False, help="Pull mentions since this Tweet ID"
+)
+def mentions_timeline(db_path, auth, since, since_id):
+    "Save tweets that mention the authenticated user"
+    _shared_timeline(
+        db_path,
+        auth,
+        since,
+        since_id,
+        table="mentions_tweets",
+        api_url="https://api.twitter.com/1.1/statuses/mentions_timeline.json",
+        sleep=10,
+    )
+
+
+def _shared_timeline(db_path, auth, since, since_id, table, api_url, sleep=1):
     if since and since_id:
         raise click.ClickException("Use either --since or --since_id, not both")
     auth = json.load(open(auth))
@@ -258,26 +304,28 @@ def home_timeline(db_path, auth, since, since_id):
     db = utils.open_database(db_path)
     profile = utils.get_profile(db, session)
     expected_length = 800
-    if since and db["timeline_tweets"].exists:
+    if since and db[table].exists:
         # Set since_id to highest value for this timeline
         try:
             since_id = db.conn.execute(
-                "select max(tweet) from timeline_tweets where user = ?", [profile["id"]]
+                "select max(tweet) from {} where user = ?".format(table),
+                [profile["id"]],
             ).fetchall()[0][0]
             expected_length = None
         except IndexError:
             pass
+
     with click.progressbar(
-        utils.fetch_home_timeline(session, since_id=since_id),
+        utils.fetch_timeline(session, api_url, sleep=sleep, since_id=since_id),
         length=expected_length,
-        label="Importing timeline",
+        label="Importing tweets",
         show_pos=True,
     ) as bar:
         # Save them 100 at a time
         def save_chunk(db, chunk):
             utils.save_tweets(db, chunk)
             # Record who's timeline they came from
-            db["timeline_tweets"].upsert_all(
+            db[table].upsert_all(
                 [{"user": profile["id"], "tweet": tweet["id"]} for tweet in chunk],
                 pk=("user", "tweet"),
                 foreign_keys=("user", "tweet"),
