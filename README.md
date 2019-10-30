@@ -147,6 +147,12 @@ You can then view your timeline in Datasette using the following URL:
 
 This will filter your tweets table to just tweets that appear in your timeline, ordered by most recent first and use faceting to show you which users are responsible for the most tweets.
 
+## Retrieving your mentions
+
+The `mentions-timeline` command works like `home-timeline` except it retrieves tweets that mention the authenticated user's account. It records the user account that was mentioned in a `mentions_tweets` table.
+
+It supports `--since` and `--since_id` in the same was as `home-timeline` does.
+
 ## Providing input from a SQL query with --sql and --attach
 
 This option is available for some subcommands - run `twitter-to-sqlite command-name --help` to check.
