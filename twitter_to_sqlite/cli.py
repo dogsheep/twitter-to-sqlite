@@ -296,6 +296,41 @@ def mentions_timeline(db_path, auth, since, since_id):
     )
 
 
+@cli.command(name="retweets-of-me")
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option(
+    "--since",
+    is_flag=True,
+    default=False,
+    help="Pull tweets since last retrieved retweet",
+)
+@click.option(
+    "--since_id", type=str, default=False, help="Pull retweets since this Tweet ID"
+)
+def retweets_of_me(db_path, auth, since, since_id):
+    "Save tweets that are retweets of the authenticated user"
+    _shared_timeline(
+        db_path,
+        auth,
+        since,
+        since_id,
+        table="retweets_of_me",
+        api_url="https://api.twitter.com/1.1/statuses/retweets_of_me.json",
+        sleep=10,
+    )
+
+
 def _shared_timeline(db_path, auth, since, since_id, table, api_url, sleep=1):
     if since and since_id:
         raise click.ClickException("Use either --since or --since_id, not both")
