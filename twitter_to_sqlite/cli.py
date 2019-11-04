@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import json
 import os
 import pathlib
@@ -649,6 +650,12 @@ def import_(db_path, paths):
     help="Path to auth.json token file",
 )
 @click.option(
+    "--since",
+    is_flag=True,
+    default=False,
+    help="Pull tweets since last retrieved tweet",
+)
+@click.option(
     "--geocode",
     type=str,
     help="latitude,longitude,radius - where radius is a number followed by mi or km",
@@ -658,12 +665,18 @@ def import_(db_path, paths):
 @click.option("--result_type", type=click.Choice(["mixed", "recent", "popular"]))
 @click.option("--count", type=int, default=100, help="Number of results per page")
 @click.option("--stop_after", type=int, help="Stop after this many")
-def search(db_path, q, auth, **kwargs):
+@click.option(
+    "--since_id", type=str, default=False, help="Pull tweets since this Tweet ID"
+)
+def search(db_path, q, auth, since, **kwargs):
     """
     Save tweets from a search. Full documentation here:
 
     https://developer.twitter.com/en/docs/tweets/search/api-reference/get-search-tweets
     """
+    since_id = kwargs.pop("since_id", None)
+    if since and since_id:
+        raise click.ClickException("Use either --since or --since_id, not both")
     stop_after = kwargs.pop("stop_after", None)
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
@@ -674,6 +687,25 @@ def search(db_path, q, auth, **kwargs):
         if value is not None:
             search_args[key] = value
 
+    args_hash = hashlib.sha1(
+        json.dumps(search_args, sort_keys=True, separators=(",", ":")).encode(
+            "utf8"
+        )
+    ).hexdigest()
+
+    if since and db["search_runs_tweets"].exists:
+        # Find the maximum tweet ID from previous runs of this search
+        try:
+            since_id = db.conn.execute(
+                """
+                select max(tweet) from search_runs_tweets where search_run in (
+                    select id from search_runs where hash = ?
+                )
+                """, [args_hash]
+            ).fetchall()[0][0]
+        except IndexError:
+            pass
+
     tweets = utils.fetch_timeline(
         session,
         "https://api.twitter.com/1.1/search/tweets.json",
@@ -681,13 +713,14 @@ def search(db_path, q, auth, **kwargs):
         sleep=6,
         key="statuses",
         stop_after=stop_after,
+        since_id=since_id,
     )
     chunk = []
     first = True
 
     if not db["search_runs"].exists:
         db["search_runs"].create(
-            {"id": int, "name": str, "args": str, "started": str}, pk="id"
+            {"id": int, "name": str, "args": str, "started": str, "hash": str}, pk="id"
         )
 
     def save_chunk(db, search_run_id, chunk):
@@ -714,6 +747,7 @@ def search(db_path, q, auth, **kwargs):
                             if key not in {"q", "count"}
                         },
                         "started": datetime.datetime.utcnow().isoformat(),
+                        "hash": args_hash,
                     },
                     alter=True,
                 )
