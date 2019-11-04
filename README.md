@@ -192,6 +192,26 @@ The filename (without the extension) will be used as the database alias within S
         --attach=foo:attendees.db \
         --sql="select Twitter from foo.attendees"
 
+## Running searches
+
+The `search` command runs a search against the Twitter [standard search API](https://developer.twitter.com/en/docs/tweets/search/api-reference/get-search-tweets).
+
+    $ twitter-to-sqlite search tweets.db "dogsheep"
+
+This will import up to around 320 tweets that match that search term into the `tweets` table. It will also create a record in the `search_runs` table recording that the search took place, and many-to-many recorsd in the `search_runs_tweets` table recording which tweets were seen for that search at that time.
+
+You can use the `--since` parameter to check for previous search runs with the same arguments and only retrieve tweets that were posted since the last retrieved matching tweet.
+
+The following additional options for `search` are supported:
+
+* `--geocode`: `latitude,longitude,radius` where radius is a number followed by mi or km
+* `--lang`: ISO 639-1 language code e.g. `en` or `es`
+* `--locale`: Locale: only `ja` is currently effective
+* `--result_type`: `mixed`, `recent` or `popular`. Defaults to `mixed`
+* `--count`: Number of results per page, defaults to the maximum of 100
+* `--stop_after`: Stop after this many results
+* `--since_id`: Pull tweets since this Tweet ID. You probably want to use `--since` instead of this.
+
 ## Capturing tweets in real-time with track and follow
 
 This functionality is **experimental**. Please [file bug reports](https://github.com/dogsheep/twitter-to-sqlite/issues) if you find any!
