@@ -12,7 +12,7 @@ Save data from Twitter to a SQLite database.
 
 ## Authentication
 
-First, you will need to create a Twitter application at https://developer.twitter.com/en/apps
+First, you will need to create a Twitter application at https://developer.twitter.com/en/apps. You may need to apply for a Twitter developer account - if so, you may find this [example of an email application](https://raw.githubusercontent.com/dogsheep/twitter-to-sqlite/master/email.png) useful that has been approved in the past.
 
 Once you have created your application, navigate to the "Keys and tokens" page and make note of the following:
 
