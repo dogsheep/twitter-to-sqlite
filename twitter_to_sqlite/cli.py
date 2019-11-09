@@ -101,6 +101,11 @@ def auth(auth):
 @click.option("--silent", is_flag=True, help="Disable progress bar")
 def followers(db_path, auth, user_id, screen_name, silent):
     "Save followers for specified user (defaults to authenticated user)"
+    _shared_friends_followers(db_path, auth, user_id, screen_name, silent, "followers")
+
+
+def _shared_friends_followers(db_path, auth, user_id, screen_name, silent, noun):
+    assert noun in ("friends", "followers")
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     db = utils.open_database(db_path)
@@ -112,24 +117,51 @@ def followers(db_path, auth, user_id, screen_name, silent):
     screen_name = profile["screen_name"]
     user_id = profile["id"]
 
+    save_users_kwargs = {}
+    if noun == "followers":
+        save_users_kwargs["followed_id"] = user_id
+    elif noun == "friends":
+        save_users_kwargs["follower_id"] = user_id
+
     def go(update):
-        for followers_chunk in utils.fetch_follower_chunks(
-            session, user_id, screen_name
+        for users_chunk in utils.fetch_user_list_chunks(
+            session, user_id, screen_name, noun=noun
         ):
-            fetched.extend(followers_chunk)
-            utils.save_users(db, followers_chunk, followed_id=user_id)
-            update(len(followers_chunk))
+            fetched.extend(users_chunk)
+            utils.save_users(db, users_chunk, **save_users_kwargs)
+            update(len(users_chunk))
 
     if not silent:
-        count = profile["followers_count"]
+        count = profile["{}_count".format(noun)]
         with click.progressbar(
             length=count,
-            label="Importing {:,} followers for @{}".format(count, screen_name),
+            label="Importing {:,} {}s for @{}".format(count, noun, screen_name),
         ) as bar:
             go(bar.update)
     else:
         go(lambda x: None)
-    # open("/tmp/all.json", "w").write(json.dumps(fetched, indent=4))
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option("--user_id", help="Numeric user ID")
+@click.option("--screen_name", help="Screen name")
+@click.option("--silent", is_flag=True, help="Disable progress bar")
+def friends(db_path, auth, user_id, screen_name, silent):
+    "Save friends for specified user (defaults to authenticated user)"
+    _shared_friends_followers(db_path, auth, user_id, screen_name, silent, "friends")
+
 
 
 @cli.command()

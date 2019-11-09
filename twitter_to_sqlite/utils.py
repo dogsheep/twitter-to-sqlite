@@ -52,11 +52,11 @@ def session_for_auth(auth):
     )
 
 
-def fetch_follower_chunks(session, user_id, screen_name, sleep=61):
+def fetch_user_list_chunks(session, user_id, screen_name, sleep=61, noun="followers"):
     cursor = -1
     users = []
     while cursor:
-        headers, body = fetch_followers(session, cursor, user_id, screen_name)
+        headers, body = fetch_user_list(session, cursor, user_id, screen_name, noun)
         yield body["users"]
         cursor = body["next_cursor"]
         if not cursor:
@@ -64,11 +64,11 @@ def fetch_follower_chunks(session, user_id, screen_name, sleep=61):
         time.sleep(sleep)  # Rate limit = 15 per 15 minutes!
 
 
-def fetch_followers(session, cursor, user_id, screen_name):
+def fetch_user_list(session, cursor, user_id, screen_name, noun="followers"):
     args = user_args(user_id, screen_name)
     args.update({"count": 200, "cursor": cursor})
     r = session.get(
-        "https://api.twitter.com/1.1/followers/list.json?"
+        "https://api.twitter.com/1.1/{}/list.json?".format(noun)
         + urllib.parse.urlencode(args)
     )
     return r.headers, r.json()
@@ -301,18 +301,19 @@ def save_tweets(db, tweets, favorited_by=None):
                 table.m2m("media", media, pk="id")
 
 
-def save_users(db, users, followed_id=None):
+def save_users(db, users, followed_id=None, follower_id=None):
+    assert not (followed_id and follower_id)
     ensure_tables(db)
     for user in users:
         transform_user(user)
     db["users"].upsert_all(users, pk="id", alter=True)
-    if followed_id:
+    if followed_id or follower_id:
         first_seen = datetime.datetime.utcnow().isoformat()
         db["following"].insert_all(
             (
                 {
-                    "followed_id": followed_id,
-                    "follower_id": user["id"],
+                    "followed_id": followed_id or user["id"],
+                    "follower_id": follower_id or user["id"],
                     "first_seen": first_seen,
                 }
                 for user in users
