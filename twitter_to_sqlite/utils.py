@@ -257,6 +257,12 @@ def ensure_tables(db):
                 ("follower_id", "users", "id"),
             ),
         )
+    # Ensure following has indexes
+    following_indexes = {tuple(i.columns) for i in db["following"].indexes}
+    if ("followed_id",) not in following_indexes:
+        db["following"].create_index(["followed_id"])
+    if ("follower_id",) not in following_indexes:
+        db["following"].create_index(["follower_id"])
 
 
 def save_tweets(db, tweets, favorited_by=None):

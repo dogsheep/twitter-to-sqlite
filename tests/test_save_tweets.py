@@ -38,6 +38,13 @@ def test_tables(db):
         "media",
         "media_tweets",
     } == set(db.table_names())
+    # And check for indexes
+    following_indexes = {tuple(i.columns) for i in db["following"].indexes}
+    assert {
+        ("followed_id", "follower_id"),
+        ("followed_id",),
+        ("follower_id",),
+    } == following_indexes
 
 
 def test_users(db):
