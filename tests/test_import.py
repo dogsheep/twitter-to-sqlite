@@ -26,9 +26,13 @@ def import_test_zip(tmpdir, zip_contents_path):
 
 def test_create_zip(zip_contents_path):
     zf = create_zip(zip_contents_path)
-    assert {"account.js", "saved-search.js", "following.js", "follower.js"} == {
-        f.filename for f in zf.filelist
-    }
+    assert {
+        "account-suspension.js",
+        "account.js",
+        "saved-search.js",
+        "following.js",
+        "follower.js",
+    } == {f.filename for f in zf.filelist}
 
 
 def test_cli_import_zip_file(import_test_zip):
