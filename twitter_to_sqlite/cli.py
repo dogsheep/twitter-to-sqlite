@@ -688,9 +688,7 @@ def search(db_path, q, auth, since, **kwargs):
             search_args[key] = value
 
     args_hash = hashlib.sha1(
-        json.dumps(search_args, sort_keys=True, separators=(",", ":")).encode(
-            "utf8"
-        )
+        json.dumps(search_args, sort_keys=True, separators=(",", ":")).encode("utf8")
     ).hexdigest()
 
     if since and db["search_runs_tweets"].exists:
@@ -701,7 +699,8 @@ def search(db_path, q, auth, since, **kwargs):
                 select max(tweet) from search_runs_tweets where search_run in (
                     select id from search_runs where hash = ?
                 )
-                """, [args_hash]
+                """,
+                [args_hash],
             ).fetchall()[0][0]
         except IndexError:
             pass
