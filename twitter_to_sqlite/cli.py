@@ -113,7 +113,6 @@ def followers(db_path, auth, user_id, screen_name, silent):
     user_id = profile["id"]
 
     def go(update):
-        utils.save_users(db, [profile])
         for followers_chunk in utils.fetch_follower_chunks(
             session, user_id, screen_name
         ):
