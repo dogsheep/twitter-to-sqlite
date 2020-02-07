@@ -102,6 +102,15 @@ To retrieve followers for another account, use:
 
 See [Analyzing my Twitter followers with Datasette](https://simonwillison.net/2018/Jan/28/analyzing-my-twitter-followers/) for the original inspiration for this command.
 
+
+## Retrieving friends
+
+The `friends` command works like the `followers` command, but retrieves the specified (or currently authenticated) user's friends - defined as accounts that the user is following.
+
+    $ twitter-to-sqlite friends twitter.db
+
+It takes the same options as the `followers` command.
+
 ## Retrieving favorited tweets
 
 The `favorites` command retrieves tweets that have been favorited by a specified user. Called without any extra arguments it retrieves tweets favorited by the currently authenticated user:
