@@ -102,6 +102,16 @@ To retrieve followers for another account, use:
 
 See [Analyzing my Twitter followers with Datasette](https://simonwillison.net/2018/Jan/28/analyzing-my-twitter-followers/) for the original inspiration for this command.
 
+## Retrieving favorited tweets
+
+The `favorites` command retrieves tweets that have been favorited by a specified user. Called without any extra arguments it retrieves tweets favorited by the currently authenticated user:
+
+    $ twitter-to-sqlite favorites faves.db
+
+You can also use the `--screen_name` or `--user_id` arguments to retrieve favorite tweets for another user:
+
+    $ twitter-to-sqlite favorites faves-obama.db --screen_name=BarackObama
+
 ## Retrieving Twitter list memberships
 
 The `list-members` command can be used to retrieve details of one or more Twitter lists, including all of their members.
