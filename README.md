@@ -36,9 +36,9 @@ You can create that JSON file by running the following command and pasting in th
 
 This will create a file called `auth.json` in your current directory containing the required values. To save the file at a different path or filename, use the `--auth=myauth.json` option.
 
-## Retrieving tweets by an account
+## Retrieving tweets by specific accounts
 
-The `user-timeline` command retrieves all of the tweets posted by the specified user account. It defaults to the account belonging to the authenticated user:
+The `user-timeline` command retrieves all of the tweets posted by the specified user accounts. It defaults to the account belonging to the authenticated user:
 
     $ twitter-to-sqlite user-timeline twitter.db
     Importing tweets  [#####-------------------------------]  2799/17780  00:01:39
@@ -47,15 +47,19 @@ All of these commands assume that there is an `auth.json` file in the current di
 
     $ twitter-to-sqlite user-timeline twitter.db -a /path/to/auth.json
 
-To load tweets for another user, use `--screen_name`:
+To load tweets for other users, pass their screen names as arguments:
 
-    $ twitter-to-sqlite user-timeline twitter.db --screen_name=cleopaws
+    $ twitter-to-sqlite user-timeline twitter.db cleopaws nichemuseums
 
 Twitter's API only returns up to around 3,200 tweets for most user accounts, but you may find that it returns all available tweets for your own user account.
 
+You can pass numeric Twitter user IDs instead of screen names using the `--ids` parameter.
+
 You can use `--since` to retrieve every tweet since the last time you imported for that user, or `--since_id=xxx` to retrieve every tweet since a specific tweet ID.
 
-## Retrieve accounts in bulk
+This command also accepts `--sql` and `--attach` options, documented below.
+
+## Retrieve user profiles in bulk
 
 If you have a list of Twitter screen names (or user IDs) you can bulk fetch their fully inflated Twitter profiles using the `users-lookup` command:
 
