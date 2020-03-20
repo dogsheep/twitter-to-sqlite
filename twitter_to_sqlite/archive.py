@@ -219,6 +219,6 @@ def import_from_file(db, filename, content):
         if table_name in existing_tables:
             db[table_name].drop()
         if pk is not None:
-            db[table_name].upsert_all(rows, pk=pk)
+            db[table_name].insert_all(rows, pk=pk, replace=True)
         else:
-            db[table_name].upsert_all(rows, hash_id="pk")
+            db[table_name].insert_all(rows, hash_id="pk", replace=True)

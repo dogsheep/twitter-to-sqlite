@@ -163,7 +163,6 @@ def friends(db_path, auth, user_id, screen_name, silent):
     _shared_friends_followers(db_path, auth, user_id, screen_name, silent, "friends")
 
 
-
 @cli.command()
 @click.argument(
     "db_path",
@@ -357,10 +356,11 @@ def _shared_timeline(db_path, auth, since, since_id, table, api_url, sleep=1):
         def save_chunk(db, chunk):
             utils.save_tweets(db, chunk)
             # Record who's timeline they came from
-            db[table].upsert_all(
+            db[table].insert_all(
                 [{"user": profile["id"], "tweet": tweet["id"]} for tweet in chunk],
                 pk=("user", "tweet"),
                 foreign_keys=("user", "tweet"),
+                replace=True,
             )
 
         chunk = []
@@ -756,10 +756,11 @@ def search(db_path, q, auth, since, **kwargs):
     def save_chunk(db, search_run_id, chunk):
         utils.save_tweets(db, chunk)
         # Record which search run produced them
-        db["search_runs_tweets"].upsert_all(
+        db["search_runs_tweets"].insert_all(
             [{"search_run": search_run_id, "tweet": tweet["id"]} for tweet in chunk],
             pk=("search_run", "tweet"),
             foreign_keys=("search_run", "tweet"),
+            replace=True,
         )
 
     search_run_id = None

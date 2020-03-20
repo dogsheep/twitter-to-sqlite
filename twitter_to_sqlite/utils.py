@@ -274,7 +274,7 @@ def save_tweets(db, tweets, favorited_by=None):
         tweet["user"] = user["id"]
         tweet["source"] = extract_and_save_source(db, tweet["source"])
         if tweet.get("place"):
-            db["places"].upsert(tweet["place"], pk="id", alter=True)
+            db["places"].insert(tweet["place"], pk="id", alter=True, replace=True)
             tweet["place"] = tweet["place"]["id"]
         # extended_entities contains media
         extended_entities = tweet.pop("extended_entities", None)
@@ -286,18 +286,19 @@ def save_tweets(db, tweets, favorited_by=None):
                 tweet[tweet_key] = tweet[tweet_key]["id"]
         if nested:
             save_tweets(db, nested)
-        db["users"].upsert(user, pk="id", alter=True)
-        table = db["tweets"].upsert(tweet, pk="id", alter=True)
+        db["users"].insert(user, pk="id", alter=True, replace=True)
+        table = db["tweets"].insert(tweet, pk="id", alter=True, replace=True)
         if favorited_by is not None:
-            db["favorited_by"].upsert(
+            db["favorited_by"].insert(
                 {"tweet": tweet["id"], "user": favorited_by},
                 pk=("user", "tweet"),
                 foreign_keys=("tweet", "user"),
+                replace=True,
             )
         if extended_entities and extended_entities.get("media"):
             for media in extended_entities["media"]:
                 # TODO: Remove this line when .m2m() grows alter=True
-                db["media"].upsert(media, pk="id", alter=True)
+                db["media"].insert(media, pk="id", alter=True, replace=True)
                 table.m2m("media", media, pk="id")
 
 
@@ -306,7 +307,7 @@ def save_users(db, users, followed_id=None, follower_id=None):
     ensure_tables(db)
     for user in users:
         transform_user(user)
-    db["users"].upsert_all(users, pk="id", alter=True)
+    db["users"].insert_all(users, pk="id", alter=True, replace=True)
     if followed_id or follower_id:
         first_seen = datetime.datetime.utcnow().isoformat()
         db["following"].insert_all(
@@ -400,7 +401,7 @@ def fetch_and_save_list(db, session, identifier, identifier_is_id=False):
     save_users(db, [user])
     data["user"] = user["id"]
     data["created_at"] = parser.parse(data["created_at"])
-    db["lists"].upsert(data, pk="id", foreign_keys=("user",))
+    db["lists"].insert(data, pk="id", foreign_keys=("user",), replace=True)
     # Now fetch the members
     url = "https://api.twitter.com/1.1/lists/members.json"
     cursor = -1
@@ -409,10 +410,11 @@ def fetch_and_save_list(db, session, identifier, identifier_is_id=False):
         body = session.get(url, params=args).json()
         users = body["users"]
         save_users(db, users)
-        db["list_members"].upsert_all(
+        db["list_members"].insert_all(
             ({"list": list_id, "user": user["id"]} for user in users),
             pk=("list", "user"),
             foreign_keys=("list", "user"),
+            replace=True,
         )
         cursor = body["next_cursor"]
         if not cursor:
@@ -516,4 +518,4 @@ def read_archive_js(filepath):
 def extract_and_save_source(db, source):
     m = source_re.match(source)
     details = m.groupdict()
-    return db["sources"].upsert(details, hash_id="id").last_pk
+    return db["sources"].insert(details, hash_id="id", replace=True).last_pk

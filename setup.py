@@ -27,7 +27,7 @@ setup(
         twitter-to-sqlite=twitter_to_sqlite.cli:cli
     """,
     install_requires=[
-        "sqlite-utils~=1.12.1",
+        "sqlite-utils~=2.4.2",
         "requests-oauthlib~=1.2.0",
         "python-dateutil",
     ],
