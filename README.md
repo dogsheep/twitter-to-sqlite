@@ -92,7 +92,7 @@ The `--skip-existing` option means that tweets that have already been stored in 
 
 ## Retrieving Twitter followers
 
-The `followers` command retrieves details of every follower of the specified account. You can use it to retrieve your own followers, or you can pass a screen_name to pull the followers for another account.
+The `followers` command retrieves details of every follower of the specified accounts. You can use it to retrieve your own followers, or you can pass one or more screen names to pull the followers for other accounts.
 
 The following command pulls your followers and saves them in a SQLite database file called `twitter.db`:
 
@@ -102,10 +102,11 @@ This command is **extremely slow**, because Twitter impose a rate limit of no mo
 
 To retrieve followers for another account, use:
 
-    $ twitter-to-sqlite followers twitter.db --screen_name=cleopaws
+    $ twitter-to-sqlite followers twitter.db cleopaws
+
+This command also accepts the `--ids`, `--sql` and `--attach` options.
 
 See [Analyzing my Twitter followers with Datasette](https://simonwillison.net/2018/Jan/28/analyzing-my-twitter-followers/) for the original inspiration for this command.
-
 
 ## Retrieving friends
 
