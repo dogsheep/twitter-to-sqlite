@@ -264,6 +264,10 @@ def user_timeline(
         identifiers = [profile["screen_name"]]
         ids = False
 
+    format_string = (
+        "@{:" + str(max(len(identifier) for identifier in identifiers)) + "}"
+    )
+
     for identifier in identifiers:
         kwargs = {}
         if ids:
@@ -292,7 +296,7 @@ def user_timeline(
                 session, stop_after=stop_after, since_id=since_id, **kwargs
             ),
             length=expected_length,
-            label=profile["screen_name"],
+            label=format_string.format(profile["screen_name"]),
             show_pos=True,
         ) as bar:
             # Save them 100 at a time
