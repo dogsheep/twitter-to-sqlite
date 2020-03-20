@@ -52,7 +52,9 @@ def session_for_auth(auth):
     )
 
 
-def fetch_user_list_chunks(session, user_id, screen_name, sleep=61, noun="followers"):
+def fetch_user_list_chunks(
+    session, user_id=None, screen_name=None, sleep=61, noun="followers"
+):
     cursor = -1
     users = []
     while cursor:
@@ -64,7 +66,7 @@ def fetch_user_list_chunks(session, user_id, screen_name, sleep=61, noun="follow
         time.sleep(sleep)  # Rate limit = 15 per 15 minutes!
 
 
-def fetch_user_list(session, cursor, user_id, screen_name, noun="followers"):
+def fetch_user_list(session, cursor, user_id=None, screen_name=None, noun="followers"):
     args = user_args(user_id, screen_name)
     args.update({"count": 200, "cursor": cursor})
     r = session.get(
@@ -133,7 +135,9 @@ def fetch_timeline(
         time.sleep(sleep)
 
 
-def fetch_user_timeline(session, user_id, screen_name, stop_after=None, since_id=None):
+def fetch_user_timeline(
+    session, user_id=None, screen_name=None, stop_after=None, since_id=None
+):
     args = user_args(user_id, screen_name)
     if since_id:
         args["since_id"] = since_id
@@ -146,7 +150,7 @@ def fetch_user_timeline(session, user_id, screen_name, stop_after=None, since_id
     )
 
 
-def fetch_favorites(session, user_id, screen_name, stop_after=None):
+def fetch_favorites(session, user_id=None, screen_name=None, stop_after=None):
     args = user_args(user_id, screen_name)
     # Rate limit 75/15 mins = 5/minute = every 12 seconds
     sleep = 12

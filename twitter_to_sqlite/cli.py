@@ -199,6 +199,7 @@ def favorites(db_path, auth, user_id, screen_name, stop_after):
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
     required=True,
 )
+@add_identifier_options
 @click.option(
     "-a",
     "--auth",
@@ -206,9 +207,10 @@ def favorites(db_path, auth, user_id, screen_name, stop_after):
     default="auth.json",
     help="Path to auth.json token file",
 )
+@click.option("--ids", is_flag=True, help="Treat input as user IDs, not screen names")
 @click.option("--stop_after", type=int, help="Only pull this number of recent tweets")
-@click.option("--user_id", help="Numeric user ID")
-@click.option("--screen_name", help="Screen name")
+@click.option("--user_id", help="Numeric user ID", hidden=True)
+@click.option("--screen_name", help="Screen name", hidden=True)
 @click.option(
     "--since",
     is_flag=True,
@@ -218,44 +220,90 @@ def favorites(db_path, auth, user_id, screen_name, stop_after):
 @click.option(
     "--since_id", type=str, default=False, help="Pull tweets since this Tweet ID"
 )
-def user_timeline(db_path, auth, stop_after, user_id, screen_name, since, since_id):
+def user_timeline(
+    db_path,
+    identifiers,
+    attach,
+    sql,
+    auth,
+    ids,
+    stop_after,
+    user_id,
+    screen_name,
+    since,
+    since_id,
+):
     "Save tweets posted by specified user"
     if since and since_id:
         raise click.ClickException("Use either --since or --since_id, not both")
+
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     db = utils.open_database(db_path)
-    profile = utils.get_profile(db, session, user_id, screen_name)
-    expected_length = profile["statuses_count"]
+    identifiers = utils.resolve_identifiers(db, identifiers, attach, sql)
 
-    if since or since_id:
-        expected_length = None
+    # Backwards compatible support for old --user_id and --screen_name options
+    if screen_name:
+        if ids:
+            raise click.ClickException("Cannot use --screen_name with --ids")
+        identifiers.append(screen_name)
 
-    if since and db["tweets"].exists:
-        try:
-            since_id = db.conn.execute(
-                "select max(id) from tweets where user = ?", [profile["id"]]
-            ).fetchall()[0][0]
-        except IndexError:
-            pass
+    if user_id:
+        if not identifiers:
+            identifiers = [user_id]
+        else:
+            if not ids:
+                raise click.ClickException("Use --user_id with --ids")
+            identifiers.append(user_id)
 
-    with click.progressbar(
-        utils.fetch_user_timeline(
-            session, user_id, screen_name, stop_after, since_id=since_id
-        ),
-        length=expected_length,
-        label="Importing tweets",
-        show_pos=True,
-    ) as bar:
-        # Save them 100 at a time
-        chunk = []
-        for tweet in bar:
-            chunk.append(tweet)
-            if len(chunk) >= 100:
+    # If identifiers is empty, fetch the authenticated user
+    fetch_profiles = True
+    if not identifiers:
+        fetch_profiles = False
+        profile = utils.get_profile(db, session, user_id, screen_name)
+        identifiers = [profile.screen_name]
+        ids = False
+
+    for identifier in identifiers:
+        kwargs = {}
+        if ids:
+            kwargs["user_id"] = identifier
+        else:
+            kwargs["screen_name"] = identifier
+        if fetch_profiles:
+            profile = utils.get_profile(db, session, **kwargs)
+        else:
+            profile = db["users"].get(profile["id"])
+        expected_length = profile["statuses_count"]
+
+        if since or since_id:
+            expected_length = None
+
+        if since and db["tweets"].exists:
+            try:
+                since_id = db.conn.execute(
+                    "select max(id) from tweets where user = ?", [profile["id"]]
+                ).fetchall()[0][0]
+            except IndexError:
+                pass
+
+        with click.progressbar(
+            utils.fetch_user_timeline(
+                session, stop_after=stop_after, since_id=since_id, **kwargs
+            ),
+            length=expected_length,
+            label=profile["screen_name"],
+            show_pos=True,
+        ) as bar:
+            # Save them 100 at a time
+            chunk = []
+            for tweet in bar:
+                chunk.append(tweet)
+                if len(chunk) >= 100:
+                    utils.save_tweets(db, chunk)
+                    chunk = []
+            if chunk:
                 utils.save_tweets(db, chunk)
-                chunk = []
-        if chunk:
-            utils.save_tweets(db, chunk)
 
 
 @cli.command(name="home-timeline")
