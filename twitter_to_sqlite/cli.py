@@ -261,7 +261,7 @@ def user_timeline(
     if not identifiers:
         fetch_profiles = False
         profile = utils.get_profile(db, session, user_id, screen_name)
-        identifiers = [profile.screen_name]
+        identifiers = [profile["screen_name"]]
         ids = False
 
     for identifier in identifiers:
