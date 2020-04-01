@@ -787,20 +787,6 @@ def search(db_path, q, auth, since, **kwargs):
         json.dumps(search_args, sort_keys=True, separators=(",", ":")).encode("utf8")
     ).hexdigest()
 
-    if since and db["search_runs_tweets"].exists:
-        # Find the maximum tweet ID from previous runs of this search
-        try:
-            since_id = db.conn.execute(
-                """
-                select max(tweet) from search_runs_tweets where search_run in (
-                    select id from search_runs where hash = ?
-                )
-                """,
-                [args_hash],
-            ).fetchall()[0][0]
-        except IndexError:
-            pass
-
     tweets = utils.fetch_timeline(
         session,
         "https://api.twitter.com/1.1/search/tweets.json",
@@ -810,11 +796,13 @@ def search(db_path, q, auth, since, **kwargs):
         key="statuses",
         stop_after=stop_after,
         since_id=since_id,
+        since_type="search",
+        since_key=args_hash,
     )
     chunk = []
     first = True
 
-    if not db["search_runs"].exists:
+    if not db["search_runs"].exists():
         db["search_runs"].create(
             {"id": int, "name": str, "args": str, "started": str, "hash": str}, pk="id"
         )
@@ -825,7 +813,10 @@ def search(db_path, q, auth, since, **kwargs):
         db["search_runs_tweets"].insert_all(
             [{"search_run": search_run_id, "tweet": tweet["id"]} for tweet in chunk],
             pk=("search_run", "tweet"),
-            foreign_keys=("search_run", "tweet"),
+            foreign_keys=(
+                ("search_run", "search_runs", "id"),
+                ("tweet", "tweets", "id"),
+            ),
             replace=True,
         )
 
