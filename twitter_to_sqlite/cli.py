@@ -354,6 +354,7 @@ def home_timeline(db_path, auth, since, since_id):
         since_id,
         table="timeline_tweets",
         api_url="https://api.twitter.com/1.1/statuses/home_timeline.json",
+        since_type="home",
     )
 
 
