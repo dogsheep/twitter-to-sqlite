@@ -185,10 +185,11 @@ def fetch_timeline(
         if last_since_id is not None:
             max_seen_id = max((last_since_id, max_seen_id))
             last_since_id = max_seen_id
-        db["since_ids"].insert(
-            {"type": since_type_id, "key": since_key, "since_id": max_seen_id,},
-            replace=True,
-        )
+        if since_type_id is not None and since_key is not None:
+            db["since_ids"].insert(
+                {"type": since_type_id, "key": since_key, "since_id": max_seen_id,},
+                replace=True,
+            )
         if stop_after is not None:
             break
         time.sleep(sleep)
