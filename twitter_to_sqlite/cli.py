@@ -205,7 +205,7 @@ def favorites(db_path, auth, user_id, screen_name, stop_after):
     db = utils.open_database(db_path)
     profile = utils.get_profile(db, session, user_id, screen_name)
     with click.progressbar(
-        utils.fetch_favorites(session, user_id, screen_name, stop_after),
+        utils.fetch_favorites(session, db, user_id, screen_name, stop_after),
         label="Importing favorites",
         show_pos=True,
     ) as bar:
@@ -253,9 +253,6 @@ def user_timeline(
     since_id,
 ):
     "Save tweets posted by specified user"
-    if since and since_id:
-        raise click.ClickException("Use either --since or --since_id, not both")
-
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     db = utils.open_database(db_path)
@@ -302,17 +299,14 @@ def user_timeline(
         if since or since_id:
             expected_length = None
 
-        if since and db["tweets"].exists:
-            try:
-                since_id = db.conn.execute(
-                    "select max(id) from tweets where user = ?", [profile["id"]]
-                ).fetchall()[0][0]
-            except IndexError:
-                pass
-
         with click.progressbar(
             utils.fetch_user_timeline(
-                session, stop_after=stop_after, since_id=since_id, **kwargs
+                session,
+                db,
+                stop_after=stop_after,
+                since_id=since_id,
+                since=since,
+                **kwargs
             ),
             length=expected_length,
             label=format_string.format(profile["screen_name"]),
@@ -399,8 +393,6 @@ def mentions_timeline(db_path, auth, since, since_id):
 
 
 def _shared_timeline(db_path, auth, since, since_id, table, api_url, sleep=1):
-    if since and since_id:
-        raise click.ClickException("Use either --since or --since_id, not both")
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     db = utils.open_database(db_path)
@@ -418,7 +410,7 @@ def _shared_timeline(db_path, auth, since, since_id, table, api_url, sleep=1):
             pass
 
     with click.progressbar(
-        utils.fetch_timeline(session, api_url, sleep=sleep, since_id=since_id),
+        utils.fetch_timeline(session, api_url, db, sleep=sleep, since_id=since_id),
         length=expected_length,
         label="Importing tweets",
         show_pos=True,
@@ -777,8 +769,6 @@ def search(db_path, q, auth, since, **kwargs):
     https://developer.twitter.com/en/docs/tweets/search/api-reference/get-search-tweets
     """
     since_id = kwargs.pop("since_id", None)
-    if since and since_id:
-        raise click.ClickException("Use either --since or --since_id, not both")
     stop_after = kwargs.pop("stop_after", None)
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
@@ -810,6 +800,7 @@ def search(db_path, q, auth, since, **kwargs):
     tweets = utils.fetch_timeline(
         session,
         "https://api.twitter.com/1.1/search/tweets.json",
+        db,
         search_args,
         sleep=6,
         key="statuses",

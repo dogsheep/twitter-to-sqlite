@@ -1,3 +1,4 @@
+import click
 import datetime
 import html
 import json
@@ -99,9 +100,43 @@ def get_profile(db, session, user_id=None, screen_name=None):
 
 
 def fetch_timeline(
-    session, url, args=None, sleep=1, stop_after=None, key=None, since_id=None
+    session,
+    url,
+    db,
+    args=None,
+    sleep=1,
+    stop_after=None,
+    key=None,
+    since_id=None,
+    since=False,
+    since_type=None,
+    since_key=None,
 ):
     # See https://developer.twitter.com/en/docs/tweets/timelines/guides/working-with-timelines
+    if since and since_id:
+        raise click.ClickException("Use either --since or --since_id, not both")
+
+    since_type_id = None
+    last_since_id = None
+    if since_type is not None:
+        assert since_key is not None
+        since_type_id = SINCE_ID_TYPES[since_type]
+        # Figure out the last since_id in case we need it
+        try:
+            last_since_id = db.conn.execute(
+                """
+                select since_id from since_ids
+                where type = ? and key = ?
+                """,
+                [since_type_id, since_key],
+            ).fetchall()[0][0]
+        except IndexError:
+            pass
+
+    if since:
+        # Load since_id from database
+        since_id = last_since_id
+
     args = dict(args or {})
     args["count"] = 200
     if stop_after is not None:
@@ -137,33 +172,50 @@ def fetch_timeline(
         for tweet in tweets:
             yield tweet
         min_seen_id = min(t["id"] for t in tweets)
+        max_seen_id = max(t["id"] for t in tweets)
+        if last_since_id is not None:
+            max_seen_id = max((last_since_id, max_seen_id))
+        db["since_ids"].insert(
+            {"type": since_type_id, "key": since_key, "since_id": max_seen_id,},
+            replace=True,
+        )
         if stop_after is not None:
             break
         time.sleep(sleep)
 
 
 def fetch_user_timeline(
-    session, user_id=None, screen_name=None, stop_after=None, since_id=None
+    session,
+    db,
+    user_id=None,
+    screen_name=None,
+    stop_after=None,
+    since_id=None,
+    since=False,
 ):
     args = user_args(user_id, screen_name)
-    if since_id:
-        args["since_id"] = since_id
     yield from fetch_timeline(
         session,
         "https://api.twitter.com/1.1/statuses/user_timeline.json",
+        db,
         args,
         sleep=1,
         stop_after=stop_after,
+        since_id=since_id,
+        since_type="user",
+        since_key="id:{}".format(user_id) if user_id else screen_name,
+        since=since,
     )
 
 
-def fetch_favorites(session, user_id=None, screen_name=None, stop_after=None):
+def fetch_favorites(session, db, user_id=None, screen_name=None, stop_after=None):
     args = user_args(user_id, screen_name)
     # Rate limit 75/15 mins = 5/minute = every 12 seconds
     sleep = 12
     yield from fetch_timeline(
         session,
         "https://api.twitter.com/1.1/favorites/list.json",
+        db,
         args,
         sleep=sleep,
         stop_after=stop_after,
