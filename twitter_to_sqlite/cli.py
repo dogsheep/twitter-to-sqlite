@@ -389,28 +389,31 @@ def mentions_timeline(db_path, auth, since, since_id):
         table="mentions_tweets",
         api_url="https://api.twitter.com/1.1/statuses/mentions_timeline.json",
         sleep=10,
+        since_type="mentions",
     )
 
 
-def _shared_timeline(db_path, auth, since, since_id, table, api_url, sleep=1):
+def _shared_timeline(
+    db_path, auth, since, since_id, table, api_url, sleep=1, since_type=None
+):
     auth = json.load(open(auth))
     session = utils.session_for_auth(auth)
     db = utils.open_database(db_path)
     profile = utils.get_profile(db, session)
     expected_length = 800
-    if since and db[table].exists:
-        # Set since_id to highest value for this timeline
-        try:
-            since_id = db.conn.execute(
-                "select max(tweet) from {} where user = ?".format(table),
-                [profile["id"]],
-            ).fetchall()[0][0]
-            expected_length = None
-        except IndexError:
-            pass
+    since_key = profile["id"]
 
     with click.progressbar(
-        utils.fetch_timeline(session, api_url, db, sleep=sleep, since_id=since_id),
+        utils.fetch_timeline(
+            session,
+            api_url,
+            db,
+            sleep=sleep,
+            since=since,
+            since_id=since_id,
+            since_type=since_type,
+            since_key=since_key,
+        ),
         length=expected_length,
         label="Importing tweets",
         show_pos=True,
