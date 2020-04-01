@@ -21,6 +21,15 @@ SINCE_ID_TYPES = {
     "mentions": 3,
     "search": 4,
 }
+COUNT_HISTORY_TYPES = {
+    "followers": 1,
+    "friends": 2,
+    "listed": 3,
+    # Don't track these - they're uninteresting and really noisy in terms
+    # of writing new rows to the count_history table:
+    # "favourites": 4,
+    # "statuses": 5,
+}
 
 source_re = re.compile('<a href="(?P<url>.*?)".*?>(?P<name>.*?)</a>')
 
@@ -340,6 +349,21 @@ def ensure_tables(db):
             foreign_keys=(("type", "since_id_types", "id"),),
         )
 
+    # Tables for recording history of user follower counts etc
+    if "count_history" not in table_names:
+        db["count_history_types"].create({"id": int, "name": str,}, pk="id")
+        db["count_history_types"].insert_all(
+            [{"id": id, "name": name} for name, id in COUNT_HISTORY_TYPES.items()]
+        )
+        db["count_history"].create(
+            {"type": int, "user": int, "datetime": str, "count": int},
+            pk=("type", "user", "datetime"),
+            foreign_keys=(
+                ("type", "count_history_types", "id"),
+                ("user", "users", "id"),
+            ),
+        )
+
 
 def save_tweets(db, tweets, favorited_by=None):
     ensure_tables(db)
@@ -363,6 +387,7 @@ def save_tweets(db, tweets, favorited_by=None):
         if nested:
             save_tweets(db, nested)
         db["users"].insert(user, pk="id", alter=True, replace=True)
+        save_user_counts(db, user)
         table = db["tweets"].insert(tweet, pk="id", alter=True, replace=True)
         if favorited_by is not None:
             db["favorited_by"].insert(
@@ -384,6 +409,8 @@ def save_users(db, users, followed_id=None, follower_id=None):
     for user in users:
         transform_user(user)
     db["users"].insert_all(users, pk="id", alter=True, replace=True)
+    for user in users:
+        save_user_counts(db, user)
     if followed_id or follower_id:
         first_seen = datetime.datetime.utcnow().isoformat()
         db["following"].insert_all(
@@ -595,3 +622,31 @@ def extract_and_save_source(db, source):
     m = source_re.match(source)
     details = m.groupdict()
     return db["sources"].insert(details, hash_id="id", replace=True).last_pk
+
+
+def save_user_counts(db, user):
+    for type_name, type_id in COUNT_HISTORY_TYPES.items():
+        previous_count = None
+        try:
+            previous_count = db.conn.execute(
+                """
+                select count from count_history
+                where type = ? and user = ?
+                order by datetime desc limit 1
+                """,
+                [type_id, user["id"]],
+            ).fetchall()[0][0]
+        except IndexError:
+            pass
+        current_count = user["{}_count".format(type_name)]
+        if current_count != previous_count:
+            db["count_history"].insert(
+                {
+                    "type": type_id,
+                    "user": user["id"],
+                    "datetime": datetime.datetime.utcnow().isoformat().split(".")[0]
+                    + "+00:00",
+                    "count": current_count,
+                },
+                replace=True,
+            )
