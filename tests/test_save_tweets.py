@@ -37,6 +37,8 @@ def test_tables(db):
         "users_fts_docsize",
         "media",
         "media_tweets",
+        "since_id_types",
+        "since_ids",
     } == set(db.table_names())
     # And check for indexes
     following_indexes = {tuple(i.columns) for i in db["following"].indexes}

@@ -14,6 +14,13 @@ import sqlite_utils
 # Twitter API error codes
 RATE_LIMIT_ERROR_CODE = 88
 
+SINCE_ID_TYPES = {
+    "user": 1,
+    "home": 2,
+    "mentions": 3,
+    "search": 4,
+}
+
 source_re = re.compile('<a href="(?P<url>.*?)".*?>(?P<name>.*?)</a>')
 
 
@@ -267,6 +274,18 @@ def ensure_tables(db):
         db["following"].create_index(["followed_id"])
     if ("follower_id",) not in following_indexes:
         db["following"].create_index(["follower_id"])
+
+    # Tables for tracking --since
+    if "since_ids" not in table_names:
+        db["since_id_types"].create({"id": int, "name": str,}, pk="id")
+        db["since_id_types"].insert_all(
+            [{"id": id, "name": name} for name, id in SINCE_ID_TYPES.items()]
+        )
+        db["since_ids"].create(
+            {"type": int, "key": str, "since_id": int},
+            pk=("type", "key"),
+            foreign_keys=(("type", "since_id_types", "id"),),
+        )
 
 
 def save_tweets(db, tweets, favorited_by=None):
