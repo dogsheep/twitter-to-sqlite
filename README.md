@@ -126,6 +126,16 @@ You can also use the `--screen_name` or `--user_id` arguments to retrieve favori
 
     $ twitter-to-sqlite favorites faves-obama.db --screen_name=BarackObama
 
+## Retrieving Twitter lists
+
+The `lists` command retrieves all of the lists belonging to one or more users.
+
+    $ twitter-to-sqlite lists lists.db simonw dogsheep
+
+This command also accepts the `--sql` and `--attach` and `--ids` options.
+
+To additionally fetch the list of members for each list, use `--members`.
+
 ## Retrieving Twitter list memberships
 
 The `list-members` command can be used to retrieve details of one or more Twitter lists, including all of their members.

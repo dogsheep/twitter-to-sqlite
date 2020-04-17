@@ -93,6 +93,23 @@ def fetch_user_list(session, cursor, user_id=None, screen_name=None, noun="follo
     return r.headers, r.json()
 
 
+def fetch_lists(db, session, user_id=None, screen_name=None):
+    lists_url = "https://api.twitter.com/1.1/lists/ownerships.json"
+    args = user_args(user_id, screen_name)
+    args["count"] = 1000
+    fetched_lists = []
+    # For the moment we don't paginate
+    for list_row in session.get(lists_url, params=args).json()["lists"]:
+        del list_row["id_str"]
+        user = list_row.pop("user")
+        save_users(db, [user])
+        list_row["user"] = user["id"]
+        list_row["created_at"] = parser.parse(list_row["created_at"])
+        fetched_lists.append(list_row)
+    db["lists"].insert_all(fetched_lists, pk="id", foreign_keys=("user",), replace=True)
+    return fetched_lists
+
+
 def get_profile(db, session, user_id=None, screen_name=None):
     if not (user_id or screen_name):
         profile = session.get(

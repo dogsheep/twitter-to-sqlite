@@ -509,6 +509,49 @@ def statuses_lookup(db_path, identifiers, attach, sql, auth, skip_existing, sile
                 bar.update(len(batch))
 
 
+@cli.command(name="lists")
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@add_identifier_options
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option("--ids", is_flag=True, help="Treat input as user IDs, not screen_names")
+@click.option("--members", is_flag=True, help="Retrieve members for each list")
+def lists(db_path, identifiers, attach, sql, auth, ids, members):
+    "Fetch lists belonging to specified users"
+    auth = json.load(open(auth))
+    session = utils.session_for_auth(auth)
+    db = utils.open_database(db_path)
+    identifiers = utils.resolve_identifiers(db, identifiers, attach, sql)
+    # Make sure we have saved these users to the database
+    for batch in utils.fetch_user_batches(session, identifiers, ids):
+        utils.save_users(db, batch)
+    first = True
+    for identifier in identifiers:
+        if ids:
+            kwargs = {"user_id": identifier}
+        else:
+            kwargs = {"screen_name": identifier}
+        fetched_lists = utils.fetch_lists(db, session, **kwargs)
+        if members:
+            for new_list in fetched_lists:
+                utils.fetch_and_save_list(
+                    db, session, new_list["full_name"].rstrip("@")
+                )
+        if not first:
+            # Rate limit is one per minute
+            first = False
+            time.sleep(60)
+
+
 @cli.command(name="list-members")
 @click.argument(
     "db_path",
