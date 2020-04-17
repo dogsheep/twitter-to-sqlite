@@ -281,7 +281,7 @@ def user_timeline(
         ids = False
 
     format_string = (
-        "@{:" + str(max(len(identifier) for identifier in identifiers)) + "}"
+        "@{:" + str(max(len(str(identifier)) for identifier in identifiers)) + "}"
     )
 
     for identifier in identifiers:
