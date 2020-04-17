@@ -620,6 +620,8 @@ def read_archive_js(filepath):
 
 
 def extract_and_save_source(db, source):
+    if not source:
+        return None
     m = source_re.match(source)
     details = m.groupdict()
     return db["sources"].insert(details, hash_id="id", replace=True).last_pk

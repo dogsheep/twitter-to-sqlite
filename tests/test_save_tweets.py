@@ -244,7 +244,7 @@ def test_tweets(db):
             "retweeted_status": None,
             "quoted_status": None,
             "place": "01a9a39529b27f36",
-            "source": "95f3aaaddaa45937ac94765e0ddb68ba2be92d20",
+            "source": None,
             "truncated": 0,
             "display_text_range": "[45, 262]",
             "in_reply_to_status_id": "1169079390577320000",
@@ -318,14 +318,14 @@ def test_sources(db):
     source_rows = list(db["sources"].rows)
     assert [
         {
-            "id": "942cfc2bf9f290ddbe3d78f1907dc084a00ed23f",
-            "name": "Vox Media",
-            "url": "http://www.voxmedia.com",
-        },
-        {
             "id": "95f3aaaddaa45937ac94765e0ddb68ba2be92d20",
             "name": "Twitter for iPhone",
             "url": "http://twitter.com/download/iphone",
+        },
+        {
+            "id": "942cfc2bf9f290ddbe3d78f1907dc084a00ed23f",
+            "name": "Vox Media",
+            "url": "http://www.voxmedia.com",
         },
         {
             "id": "1f89d6a41b1505a3071169f8d0d028ba9ad6f952",
