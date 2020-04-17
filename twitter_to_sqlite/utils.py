@@ -34,6 +34,11 @@ COUNT_HISTORY_TYPES = {
 source_re = re.compile('<a href="(?P<url>.*?)".*?>(?P<name>.*?)</a>')
 
 
+class UserDoesNotExist(click.ClickException):
+    def __init__(self, identifier):
+        super().__init__("User '{}' does not exist".format(identifier))
+
+
 def open_database(db_path):
     db = sqlite_utils.Database(db_path)
     # Only run migrations if this is an existing DB (has tables)
@@ -120,7 +125,10 @@ def get_profile(db, session, user_id=None, screen_name=None):
         url = "https://api.twitter.com/1.1/users/show.json"
         if args:
             url += "?" + urllib.parse.urlencode(args)
-        profile = session.get(url).json()
+        response = session.get(url)
+        if response.status_code == 404:
+            raise UserDoesNotExist(screen_name or user_id)
+        profile = response.json()
     save_users(db, [profile])
     return profile
 
