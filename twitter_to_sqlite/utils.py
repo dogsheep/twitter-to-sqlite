@@ -4,6 +4,7 @@ import html
 import json
 import pathlib
 import re
+import sqlite3
 import time
 import urllib.parse
 import zipfile
@@ -164,7 +165,7 @@ def fetch_timeline(
                 """,
                 [since_type_id, since_key],
             ).fetchall()[0][0]
-        except IndexError:
+        except (IndexError, sqlite3.OperationalError):
             pass
 
     if since:
