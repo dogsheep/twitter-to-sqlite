@@ -7,6 +7,9 @@
 
 Save data from Twitter to a SQLite database.
 
+<!-- toc -->
+<!-- tocstop -->
+
 ## How to install
 
     $ pip install twitter-to-sqlite
