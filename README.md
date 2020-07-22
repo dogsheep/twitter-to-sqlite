@@ -8,6 +8,28 @@
 Save data from Twitter to a SQLite database.
 
 <!-- toc -->
+
+- [How to install](#how-to-install)
+- [Authentication](#authentication)
+- [Retrieving tweets by specific accounts](#retrieving-tweets-by-specific-accounts)
+- [Retrieve user profiles in bulk](#retrieve-user-profiles-in-bulk)
+- [Retrieve tweets in bulk](#retrieve-tweets-in-bulk)
+- [Retrieving Twitter followers](#retrieving-twitter-followers)
+- [Retrieving friends](#retrieving-friends)
+- [Retrieving favorited tweets](#retrieving-favorited-tweets)
+- [Retrieving Twitter lists](#retrieving-twitter-lists)
+- [Retrieving Twitter list memberships](#retrieving-twitter-list-memberships)
+- [Retrieving just follower and friend IDs](#retrieving-just-follower-and-friend-ids)
+- [Retrieving tweets from your home timeline](#retrieving-tweets-from-your-home-timeline)
+- [Retrieving your mentions](#retrieving-your-mentions)
+- [Providing input from a SQL query with --sql and --attach](#providing-input-from-a-sql-query-with---sql-and---attach)
+- [Running searches](#running-searches)
+- [Capturing tweets in real-time with track and follow](#capturing-tweets-in-real-time-with-track-and-follow)
+  * [track](#track)
+  * [follow](#follow)
+- [Importing data from your Twitter archive](#importing-data-from-your-twitter-archive)
+- [Design notes](#design-notes)
+
 <!-- tocstop -->
 
 ## How to install
