@@ -152,6 +152,10 @@ You can also use the `--screen_name` or `--user_id` arguments to retrieve favori
 
     $ twitter-to-sqlite favorites faves-obama.db --screen_name=BarackObama
 
+Use the `--stop_after=xxx` argument to retrieve only the most recent number of favorites, e.g. to get the authenticated user's 50 most recent favorites:
+
+    $ twitter-to-sqlite favorites faves.db --stop_after=50
+
 ## Retrieving Twitter lists
 
 The `lists` command retrieves all of the lists belonging to one or more users.
