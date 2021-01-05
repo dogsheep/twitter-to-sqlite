@@ -197,7 +197,14 @@ register("verified", each="verified")
 def _list_from_common(data):
     lists = []
     for block in data:
-        for url in block["userListInfo"]["urls"]:
+        info = block["userListInfo"]
+        if "urls" in info:
+            urls = info["urls"]
+        elif "url" in info:
+            urls = [info["url"]]
+        else:
+            urls = []
+        for url in urls:
             bits = url.split("/")
             lists.append({"screen_name": bits[-3], "list_slug": bits[-1]})
     return lists
