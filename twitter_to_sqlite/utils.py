@@ -641,8 +641,12 @@ def read_archive_js(filepath):
     "Open zip file, return (filename, content) for all .js"
     zf = zipfile.ZipFile(filepath)
     for zi in zf.filelist:
-        if zi.filename.endswith(".js"):
-            yield zi.filename, zf.open(zi.filename).read()
+        # Ignore files in a assets dir -- these are for Twitter's archive
+        # browser thingie -- and only use final filenames since some archives
+        # appear to put data in a data/ subdir, which can screw up the filename
+        # -> importer mapping.
+        if zi.filename.endswith(".js") and not zi.filename.startswith("assets/"):
+            yield pathlib.Path(zi.filename).name, zf.open(zi.filename).read()
 
 
 def extract_and_save_source(db, source):
