@@ -185,9 +185,20 @@ register("saved-search", each="savedSearch", pk="savedSearchId")
 
 @register_each("tweet", pk="id")
 def tweet(item):
+    # Older versions of the archive have the tweet data at the top level of the
+    # item; newer versions have it all in a 'tweet' sub-key.
+    if "tweet" in item:
+        item = item["tweet"]
+
     for key in item:
         if key == "id" or key.endswith("_id"):
             item[key] = int(item[key])
+
+    # Handle some columns that are sometimes missing
+    optional_columns = ["possibly_sensitive", "coordinates", "geo", "extended_entities"]
+    for col in optional_columns:
+        item.setdefault(col, None)
+
     return item
 
 
