@@ -258,7 +258,7 @@ The `search` command runs a search against the Twitter [standard search API](htt
 
     $ twitter-to-sqlite search tweets.db "dogsheep"
 
-This will import up to around 320 tweets that match that search term into the `tweets` table. It will also create a record in the `search_runs` table recording that the search took place, and many-to-many recorsd in the `search_runs_tweets` table recording which tweets were seen for that search at that time.
+This will import up to around 320 tweets that match that search term into the `tweets` table. It will also create a record in the `search_runs` table recording that the search took place, and many-to-many records in the `search_runs_tweets` table recording which tweets were seen for that search at that time.
 
 You can use the `--since` parameter to check for previous search runs with the same arguments and only retrieve tweets that were posted since the last retrieved matching tweet.
 
