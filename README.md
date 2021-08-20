@@ -1,9 +1,9 @@
 # twitter-to-sqlite
 
 [![PyPI](https://img.shields.io/pypi/v/twitter-to-sqlite.svg)](https://pypi.org/project/twitter-to-sqlite/)
-[![GitHub changelog](https://img.shields.io/github/v/release/dogsheep/twitter-to-sqlite?include_prereleases&label=changelog)](https://github.com/dogsheep/twitter-to-sqlite/releases)
-[![CircleCI](https://circleci.com/gh/dogsheep/twitter-to-sqlite.svg?style=svg)](https://circleci.com/gh/dogsheep/twitter-to-sqlite)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/dogsheep/twitter-to-sqlite/blob/master/LICENSE)
+[![Changelog](https://img.shields.io/github/v/release/dogsheep/twitter-to-sqlite?include_prereleases&label=changelog)](https://github.com/dogsheep/twitter-to-sqlite/releases)
+[![Tests](https://github.com/dogsheep/twitter-to-sqlite/workflows/Test/badge.svg)](https://github.com/dogsheep/twitter-to-sqlite/actions?query=workflow%3ATest)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/dogsheep/twitter-to-sqlite/blob/main/LICENSE)
 
 Save data from Twitter to a SQLite database.
 

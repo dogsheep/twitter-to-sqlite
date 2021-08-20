@@ -18,7 +18,12 @@ setup(
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
     author="Simon Willison",
-    url="https://github.com/dogsheep/twitter-to-sqlite",
+    url="https://datasette.io/tools/twitter-to-sqlite",
+    project_urls={
+        "Issues": "https://github.com/dogsheep/twitter-to-sqlite/issues",
+        "CI": "https://github.com/dogsheep/twitter-to-sqlite/actions",
+        "Changelog": "https://github.com/dogsheep/twitter-to-sqlite/releases",
+    },
     license="Apache License, Version 2.0",
     version=VERSION,
     packages=["twitter_to_sqlite"],
