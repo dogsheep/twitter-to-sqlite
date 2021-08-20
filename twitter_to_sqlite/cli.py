@@ -233,12 +233,9 @@ def favorites(db_path, auth, user_id, screen_name, stop_after):
 @click.option(
     "--since",
     is_flag=True,
-    default=False,
     help="Pull tweets since last retrieved tweet",
 )
-@click.option(
-    "--since_id", type=str, default=False, help="Pull tweets since this Tweet ID"
-)
+@click.option("--since_id", type=str, help="Pull tweets since this Tweet ID")
 def user_timeline(
     db_path,
     identifiers,

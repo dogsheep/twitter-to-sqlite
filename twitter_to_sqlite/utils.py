@@ -213,7 +213,11 @@ def fetch_timeline(
             last_since_id = max_seen_id
         if since_type_id is not None and since_key is not None:
             db["since_ids"].insert(
-                {"type": since_type_id, "key": since_key, "since_id": max_seen_id,},
+                {
+                    "type": since_type_id,
+                    "key": since_key,
+                    "since_id": max_seen_id,
+                },
                 replace=True,
             )
         if stop_after is not None:
@@ -366,7 +370,13 @@ def ensure_tables(db):
 
     # Tables for tracking --since
     if "since_ids" not in table_names:
-        db["since_id_types"].create({"id": int, "name": str,}, pk="id")
+        db["since_id_types"].create(
+            {
+                "id": int,
+                "name": str,
+            },
+            pk="id",
+        )
         db["since_id_types"].insert_all(
             [{"id": id, "name": name} for name, id in SINCE_ID_TYPES.items()]
         )
@@ -378,7 +388,13 @@ def ensure_tables(db):
 
     # Tables for recording history of user follower counts etc
     if "count_history" not in table_names:
-        db["count_history_types"].create({"id": int, "name": str,}, pk="id")
+        db["count_history_types"].create(
+            {
+                "id": int,
+                "name": str,
+            },
+            pk="id",
+        )
         db["count_history_types"].insert_all(
             [{"id": id, "name": name} for name, id in COUNT_HISTORY_TYPES.items()]
         )
