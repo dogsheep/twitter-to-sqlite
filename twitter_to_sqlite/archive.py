@@ -185,9 +185,20 @@ register("saved-search", each="savedSearch", pk="savedSearchId")
 
 @register_each("tweet", pk="id")
 def tweet(item):
+    # Older versions of the archive have the tweet data at the top level of the
+    # item; newer versions have it all in a 'tweet' sub-key.
+    if "tweet" in item:
+        item = item["tweet"]
+
     for key in item:
         if key == "id" or key.endswith("_id"):
             item[key] = int(item[key])
+
+    # Handle some columns that are sometimes missing
+    optional_columns = ["possibly_sensitive", "coordinates", "geo", "extended_entities"]
+    for col in optional_columns:
+        item.setdefault(col, None)
+
     return item
 
 
@@ -197,7 +208,14 @@ register("verified", each="verified")
 def _list_from_common(data):
     lists = []
     for block in data:
-        for url in block["userListInfo"]["urls"]:
+        info = block["userListInfo"]
+        if "urls" in info:
+            urls = info["urls"]
+        elif "url" in info:
+            urls = [info["url"]]
+        else:
+            urls = []
+        for url in urls:
             bits = url.split("/")
             lists.append({"screen_name": bits[-3], "list_slug": bits[-1]})
     return lists
