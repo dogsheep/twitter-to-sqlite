@@ -94,7 +94,7 @@ def ageinfo(item):
 register("app", each="app", pk="appId")
 
 register("block", each="blocking", pk="accountId")
-register("connected-applications", each="connectedApplication", pk="id")
+register("connected-application", each="connectedApplication", pk="id")
 # register("contact", ...)
 register("direct-message-group-headers", each="dmConversation", pk="conversationId")
 register("direct-message-group", each="dmConversation", pk="conversationId")
