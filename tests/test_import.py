@@ -29,6 +29,7 @@ def test_create_zip(zip_contents_path):
     assert {
         "account-suspension.js",
         "account.js",
+        "app.js",
         "saved-search.js",
         "following.js",
         "follower.js",
@@ -74,6 +75,7 @@ def assert_imported_db(db):
         "archive_follower",
         "archive_saved_search",
         "archive_account",
+        "archive_app",
         "archive_following",
     } == set(db.table_names())
 
@@ -82,6 +84,10 @@ def assert_imported_db(db):
     )
     assert [{"accountId": "547842573"}, {"accountId": "12158"}] == list(
         db["archive_following"].rows
+    )
+
+    assert [{"appId": "1380676511", "appNames": '["BBC Sounds"]'}] == list(
+        db["archive_app"].rows
     )
 
     assert [

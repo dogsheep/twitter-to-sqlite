@@ -7,6 +7,9 @@ import json
 # of tables that should be created {"tabe": [rows-to-upsert]}
 transformers = {}
 
+# These files are deliberately ignored
+IGNORE = {"manifest"}
+
 
 def register(filename, each, pk=None):
     def callback(data):
@@ -87,6 +90,8 @@ def ad_online_conversions_unattributed(item):
 def ageinfo(item):
     return item["ageMeta"]["ageInfo"]
 
+
+register("app", each="app", pk="appId")
 
 register("block", each="blocking", pk="accountId")
 register("connected-applications", each="connectedApplication", pk="id")
@@ -226,7 +231,8 @@ def import_from_file(db, filename, content):
     existing_tables = set(db.table_names())
     filename = filename[: -len(".js")]
     if filename not in transformers:
-        print("{}: not yet implemented".format(filename))
+        if filename not in IGNORE:
+            print("{}: not yet implemented".format(filename))
         return
     transformer, pk = transformers.get(filename)
     data = extract_json(content)
