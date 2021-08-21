@@ -97,11 +97,11 @@ register("block", each="blocking", pk="accountId")
 register("connected-application", each="connectedApplication", pk="id")
 # register("contact", ...)
 register("direct-message-group-headers", each="dmConversation", pk="conversationId")
-register("direct-message-group", each="dmConversation", pk="conversationId")
+register("direct-messages-group", each="dmConversation", pk="conversationId")
 register("direct-message-headers", each="dmConversation", pk="conversationId")
 # pk for this one is NOT set, because there are dupes:
 # TODO: These actually do warrant separate tables:
-register("direct-message", each="dmConversation")
+register("direct-messages", each="dmConversation")
 
 register("email-address-change", each="emailAddressChange")
 register("follower", each="follower", pk="accountId")
