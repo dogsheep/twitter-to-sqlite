@@ -336,12 +336,9 @@ def user_timeline(
 @click.option(
     "--since",
     is_flag=True,
-    default=False,
     help="Pull tweets since last retrieved tweet",
 )
-@click.option(
-    "--since_id", type=str, default=False, help="Pull tweets since this Tweet ID"
-)
+@click.option("--since_id", type=str, help="Pull tweets since this Tweet ID")
 def home_timeline(db_path, auth, since, since_id):
     "Save tweets from timeline for authenticated user"
     _shared_timeline(
@@ -371,12 +368,9 @@ def home_timeline(db_path, auth, since, since_id):
 @click.option(
     "--since",
     is_flag=True,
-    default=False,
     help="Pull tweets since last retrieved mention",
 )
-@click.option(
-    "--since_id", type=str, default=False, help="Pull mentions since this Tweet ID"
-)
+@click.option("--since_id", type=str, help="Pull mentions since this Tweet ID")
 def mentions_timeline(db_path, auth, since, since_id):
     "Save tweets that mention the authenticated user"
     _shared_timeline(
@@ -790,7 +784,6 @@ def import_(db_path, paths):
 @click.option(
     "--since",
     is_flag=True,
-    default=False,
     help="Pull tweets since last retrieved tweet",
 )
 @click.option(
@@ -803,9 +796,7 @@ def import_(db_path, paths):
 @click.option("--result_type", type=click.Choice(["mixed", "recent", "popular"]))
 @click.option("--count", type=int, default=100, help="Number of results per page")
 @click.option("--stop_after", type=int, help="Stop after this many")
-@click.option(
-    "--since_id", type=str, default=False, help="Pull tweets since this Tweet ID"
-)
+@click.option("--since_id", type=str, help="Pull tweets since this Tweet ID")
 def search(db_path, q, auth, since, **kwargs):
     """
     Save tweets from a search. Full documentation here:
