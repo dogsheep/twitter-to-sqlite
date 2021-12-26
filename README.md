@@ -7,6 +7,8 @@
 
 Save data from Twitter to a SQLite database.
 
+**This tool currently uses Twitter API v1**. You may be unable to use it if you do not have an API key for that version of the API.
+
 <!-- toc -->
 
 - [How to install](#how-to-install)
