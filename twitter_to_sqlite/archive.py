@@ -88,6 +88,10 @@ def ad_online_conversions_unattributed(item):
 
 @register_each("ageinfo")
 def ageinfo(item):
+    # Newer archive formats are passing ageinfo as a string here
+    if isinstance(item, (str)):
+        return {item: ''}
+
     return item["ageMeta"]["ageInfo"]
 
 
