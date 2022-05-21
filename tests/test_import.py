@@ -33,6 +33,7 @@ def test_create_zip(zip_contents_path):
         "saved-search.js",
         "following.js",
         "follower.js",
+        "ageinfo.js",
     } == {f.filename for f in zf.filelist}
 
 
@@ -77,6 +78,7 @@ def assert_imported_db(db):
         "archive_account",
         "archive_app",
         "archive_following",
+        "archive_ageinfo",
     } == set(db.table_names())
 
     assert [{"accountId": "73747798"}, {"accountId": "386025404"}] == list(
