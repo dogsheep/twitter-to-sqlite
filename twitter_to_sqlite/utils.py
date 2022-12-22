@@ -10,6 +10,8 @@ import urllib.parse
 import zipfile
 
 from dateutil import parser
+from requests import Session
+from requests.auth import AuthBase
 from requests_oauthlib import OAuth1Session
 import sqlite_utils
 
@@ -66,13 +68,27 @@ def migrate(db):
         )
 
 
+class BearerTokenAuth(AuthBase):
+    def __init__(self, bearer_token):
+        self.bearer_token = bearer_token
+
+    def __call__(self, r):
+        r.headers["Authorization"] = "Bearer " + self.bearer_token
+        return r
+
+
 def session_for_auth(auth):
-    return OAuth1Session(
-        client_key=auth["api_key"],
-        client_secret=auth["api_secret_key"],
-        resource_owner_key=auth["access_token"],
-        resource_owner_secret=auth["access_token_secret"],
-    )
+    if "bearer_token" in auth:
+        session = Session()
+        session.auth = BearerTokenAuth(auth["bearer_token"])
+        return session
+    else:
+        return OAuth1Session(
+            client_key=auth["api_key"],
+            client_secret=auth["api_secret_key"],
+            resource_owner_key=auth["access_token"],
+            resource_owner_secret=auth["access_token_secret"],
+        )
 
 
 def fetch_user_list_chunks(
