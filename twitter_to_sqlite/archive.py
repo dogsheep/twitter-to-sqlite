@@ -207,6 +207,9 @@ def tweet(item):
     return item
 
 
+register("twitter-circle", each="twitterCircle", pk="id")
+register("twitter-circle-member", each="twitterCircleMember")
+register("twitter-circle-tweet", each="tweet", pk="id")
 register("verified", each="verified")
 
 
