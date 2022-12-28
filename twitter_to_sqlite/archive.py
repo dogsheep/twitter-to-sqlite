@@ -126,7 +126,7 @@ def lists_subscribed(data):
 
 
 register("moment", each="moment", pk="momentId")
-# register("mute", ...)
+register("mute", each="muting", pk="accountId")
 
 
 @register_all("ni-devices")
