@@ -24,6 +24,7 @@ def register_each(filename, pk=None):
             return {filename: [fn(item) for item in data]}
 
         transformers[filename] = (callback, pk)
+        return fn
 
     return inner
 
@@ -31,6 +32,7 @@ def register_each(filename, pk=None):
 def register_multi(filename):
     def inner(fn):
         transformers[filename] = (fn, None)
+        return fn
 
     return inner
 
@@ -38,6 +40,7 @@ def register_multi(filename):
 def register_all(filename):
     def inner(fn):
         transformers[filename] = (fn, None)
+        return fn
 
     return inner
 
@@ -189,6 +192,7 @@ register("saved-search", each="savedSearch", pk="savedSearchId")
 
 
 @register_each("tweet", pk="id")
+@register_each("tweets", pk="id")
 def tweet(item):
     # Older versions of the archive have the tweet data at the top level of the
     # item; newer versions have it all in a 'tweet' sub-key.
