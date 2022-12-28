@@ -13,6 +13,7 @@ Save data from Twitter to a SQLite database.
 
 - [How to install](#how-to-install)
 - [Authentication](#authentication)
+  * [App-only authentication](#app-only-authentication)
 - [Retrieving tweets by specific accounts](#retrieving-tweets-by-specific-accounts)
 - [Retrieve user profiles in bulk](#retrieve-user-profiles-in-bulk)
 - [Retrieve tweets in bulk](#retrieve-tweets-in-bulk)
@@ -63,6 +64,12 @@ You can create that JSON file by running the following command and pasting in th
     Access token secret: xxx
 
 This will create a file called `auth.json` in your current directory containing the required values. To save the file at a different path or filename, use the `--auth=myauth.json` option.
+
+### App-only authentication
+
+Authentication using an [app-only Bearer Token](https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens) is also possible. If you already have a bearer token, you can create an `auth.json` file directly:
+
+    {"bearer_token": "AAAA...cE3F"}
 
 ## Retrieving tweets by specific accounts
 
